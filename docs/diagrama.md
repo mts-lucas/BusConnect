@@ -29,7 +29,8 @@ classDiagram
 
     class Presenca {
         -id: int
-        -presente: boolean
+        -ida: boolean
+        -volta: boolean
         -horarioSaida: time
     }
 
