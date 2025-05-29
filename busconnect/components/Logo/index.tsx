@@ -9,7 +9,7 @@ interface LogoProps {
 export const Logo: React.FC<LogoProps> = ({ style }) => {
   return (
     <View style={[styles.container, style]}>
-      <Text style={styles.text}>MyApp</Text>
+      <Text style={styles.text}>BusConnect</Text>
     </View>
   );
 };

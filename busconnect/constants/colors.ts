@@ -10,6 +10,6 @@ export const COLORS = {
     blueLight: '#41CCA7',
     blueDark: '#4181CC',
     redDark: '#A31D00',
-    yellowLight: 'ffb703',
-    yellowDark: 'fb8500'
+    yellowLight: '#FFB703',
+    yellowDark: '#FB8500'
   }

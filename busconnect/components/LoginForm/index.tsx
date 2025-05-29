@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, Text, StyleProp, ViewStyle } from 'react-native';
 import { styles } from './styles';
 import { LoginFormProps, LoginFormValues } from './types';
+import { COLORS } from '../../constants/colors';
 
 export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, loading }) => {
   const [values, setValues] = useState<LoginFormValues>({
@@ -23,6 +24,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, loading }) => {
         style={styles.input}
         placeholder="Email"
         keyboardType="email-address"
+        placeholderTextColor={COLORS.white}
         autoCapitalize="none"
         value={values.email}
         onChangeText={(text) => handleChange('email', text)}
@@ -31,6 +33,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, loading }) => {
       <TextInput
         style={styles.input}
         placeholder="Senha"
+        placeholderTextColor={COLORS.white}
         secureTextEntry
         value={values.password}
         onChangeText={(text) => handleChange('password', text)}
