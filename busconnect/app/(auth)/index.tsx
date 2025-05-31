@@ -14,7 +14,7 @@ export default function LoginScreen() {
     // Simula um tempo de carregamento
     await new Promise(resolve => setTimeout(resolve, 1000));
     setLoading(false);
-    router.replace('/(tabs)/home');
+    router.replace('/(tabs)');
   };
 
   return (
@@ -44,10 +44,12 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     paddingHorizontal: 24,
+    paddingTop: 40,
   },
   logo: {
     alignSelf: 'center',
+    marginBottom: 4,
   },
 });

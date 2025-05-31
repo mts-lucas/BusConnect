@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleProp, ViewStyle } from 'react-native';
+import { View, StyleProp, ViewStyle, Image} from 'react-native';
 import { styles } from './styles';
 
 interface LogoProps {
@@ -9,7 +9,11 @@ interface LogoProps {
 export const Logo: React.FC<LogoProps> = ({ style }) => {
   return (
     <View style={[styles.container, style]}>
-      <Text style={styles.text}>BusConnect</Text>
+      <Image
+        source={require('../../assets/images/buslogo.png')}
+        style={[styles.image, { height: 300, width: 300 }]}
+        resizeMode="contain"
+      />
     </View>
   );
 };
