@@ -9,7 +9,9 @@ export const COLORS = {
     greenDark: '#66CC41',
     blueLight: '#41CCA7',
     blueDark: '#4181CC',
+    blueCayo: '#586BA4',
     redDark: '#A31D00',
     yellowLight: '#FFB703',
     yellowDark: '#FB8500'
+
   }
