@@ -14,7 +14,7 @@ export default function LoginScreen() {
     // Simula um tempo de carregamento
     await new Promise(resolve => setTimeout(resolve, 1000));
     setLoading(false);
-    router.replace('/(tabs)');
+    router.replace('(tabs)/home');
   };
 
   return (
