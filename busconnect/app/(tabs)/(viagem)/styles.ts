@@ -1,4 +1,3 @@
-// app/(tabs)/(viagem)/styles.ts
 import { StyleSheet } from 'react-native';
 import { COLORS } from '../../../constants/colors';
 
@@ -76,4 +75,13 @@ export const styles = StyleSheet.create({
     marginLeft: 0,   // Remove margem automática
   },
   
+
+  botoesContainer: {
+    position: 'absolute',
+    right: 10,
+    top: 10,
+    flexDirection: 'row',
+    gap: 6,
+  },
+
 });

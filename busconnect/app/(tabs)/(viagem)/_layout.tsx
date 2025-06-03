@@ -1,10 +1,11 @@
-// app/(tabs)/(viagem)/index.tsx
+
 import { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import CalendarViagem from '../../../components/CalendarViagem';
+import CalendarViagem from '../../../components/Viagem/CalendarViagem';
 import { COLORS } from '../../../constants/colors';
-import { styles, textStyles } from './styles'; // Importe os estilos do arquivo separado
+import { styles, textStyles } from './styles'; // Importa os styles de ()
+import { BotaoViagem } from '../../../components/Viagem/BotaoViagem';
 
 type Viagem = {
   data: string;
@@ -42,20 +43,29 @@ export default function ViagemScreen() {
 
   return (
     <View style={styles.container}>
-      <CalendarViagem 
+      <CalendarViagem
         onDayPress={handleDayPress}
         markedDates={{
           ...viagens.reduce((acc, viagem) => ({
             ...acc,
             [viagem.data]: { marked: true, dotColor: COLORS.yellowLight }
           }), {}),
-          [selectedDate]: { selected: true, selectedColor: COLORS.yellowDark }
+          [selectedDate]: {
+            selected: true,
+            selectedColor: COLORS.yellowDark,
+            selectedTextColor: COLORS.grayDark,
+            customStyles: {
+              container: {
+                borderRadius: 12,
+              }
+            }
+          }
         }}
       />
 
       {!showForm ? (
-        <TouchableOpacity 
-          style={styles.botao} 
+        <TouchableOpacity
+          style={styles.botao}
           onPress={() => setShowForm(true)}
         >
           <Text style={styles.textoBotao}>Criar Viagem</Text>
@@ -63,7 +73,7 @@ export default function ViagemScreen() {
       ) : (
         <View style={styles.formContainer}>
           <Text style={styles.titulo}>Nova Viagem: {selectedDate}</Text>
-          
+
           <Text style={styles.label}>Rota:</Text>
           <Picker
             selectedValue={rota}
@@ -87,8 +97,8 @@ export default function ViagemScreen() {
             <Picker.Item label="Noite" value="Noite" />
           </Picker>
 
-          <TouchableOpacity 
-            style={styles.botao} 
+          <TouchableOpacity
+            style={styles.botao}
             onPress={criarViagem}
             disabled={!rota || !horario}
           >
@@ -98,26 +108,32 @@ export default function ViagemScreen() {
       )}
 
       {viagensDoDia.length > 0 && (
-  <>
-    <Text style={styles.tituloLista}>Viagens em {selectedDate}:</Text>
-    {viagensDoDia.map((viagem, index) => (
-      <View key={index} style={styles.itemLista}>
-        <Text style={styles.textoItem}>
-          <Text style={textStyles.bold}>Rota: </Text>
-          {viagem.rota ? viagem.rota : 'Não especificada'}
-        </Text>
-        <Text style={styles.textoItem}>
-          <Text style={textStyles.bold}>Horário: </Text>
-          {viagem.horario ? viagem.horario : 'Não especificado'}
-        </Text>
-        <Text style={[styles.textoItem, { marginBottom: 0 }]}>
-          <Text style={textStyles.bold}>Status: </Text>
-          {viagem.status ? viagem.status : 'Aberto'}
-        </Text>
-      </View>
-    ))}
-  </>
-)}
+        <>
+          <Text style={styles.tituloLista}>Viagens em {selectedDate}:</Text>
+          {viagensDoDia.map((viagem, index) => (
+            <View key={index} style={styles.itemLista}>
+              <View style={styles.botoesContainer}>
+                <BotaoViagem tipo="editar" tamanho={24} />
+                <BotaoViagem tipo="excluir" tamanho={24} />
+              </View>
+
+             
+              <Text style={styles.textoItem}>
+                <Text style={textStyles.bold}>Rota: </Text>
+                {viagem.rota || 'Não especificada'}
+              </Text>
+              <Text style={styles.textoItem}>
+                <Text style={textStyles.bold}>Horário: </Text>
+                {viagem.horario || 'Não especificado'}
+              </Text>
+              <Text style={[styles.textoItem, { marginBottom: 0 }]}>
+                <Text style={textStyles.bold}>Status: </Text>
+                {viagem.status || 'Aberto'}
+              </Text>
+            </View>
+          ))}
+        </>
+      )}
     </View>
   );
 }
