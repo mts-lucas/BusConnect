@@ -112,25 +112,27 @@ export default function ViagemScreen() {
           <Text style={styles.tituloLista}>Viagens em {selectedDate}:</Text>
           {viagensDoDia.map((viagem, index) => (
             <View key={index} style={styles.itemLista}>
+              {/* Container de texto  */}
+              <View style={{ flex: 1 }}>
+                <Text style={styles.textoItem}>
+                  <Text style={textStyles.bold}>Rota: </Text>
+                  {viagem.rota || 'Não especificada'}
+                </Text>
+                <Text style={styles.textoItem}>
+                  <Text style={textStyles.bold}>Horário: </Text>
+                  {viagem.horario || 'Não especificado'}
+                </Text>
+                <Text style={[styles.textoItem, { marginBottom: 0 }]}>
+                  <Text style={textStyles.bold}>Status: </Text>
+                  {viagem.status || 'Aberto'}
+                </Text>
+              </View>
+
+              {/* Botões  */}
               <View style={styles.botoesContainer}>
                 <BotaoViagem tipo="editar" tamanho={40} />
                 <BotaoViagem tipo="excluir" tamanho={40} />
               </View>
-
-              <View style={{ marginRight: 60 }}> 
-              <Text style={styles.textoItem}>
-                <Text style={textStyles.bold}>Rota: </Text>
-                {viagem.rota || 'Não especificada'}
-              </Text>
-              <Text style={styles.textoItem}>
-                <Text style={textStyles.bold}>Horário: </Text>
-                {viagem.horario || 'Não especificado'}
-              </Text>
-              <Text style={[styles.textoItem, { marginBottom: 0 }]}>
-                <Text style={textStyles.bold}>Status: </Text>
-                {viagem.status || 'Aberto'}
-              </Text>
-            </View>
             </View>
           ))}
         </>

@@ -17,14 +17,14 @@ export const styles = StyleSheet.create({
     padding: 16,
   },
   botao: {
-    backgroundColor: COLORS.yellowLight,
+    backgroundColor: COLORS.greenDark,
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',
     marginTop: 20,
   },
   textoBotao: {
-    color: COLORS.grayDark,
+    color: COLORS.white,
     fontWeight: 'bold',
   },
   formContainer: {
@@ -57,28 +57,30 @@ export const styles = StyleSheet.create({
     paddingLeft: 0,  // Garante que o título comece no canto
     marginLeft: 0,   // Remove qualquer margem automática
   },
+
+
   itemLista: {
     backgroundColor: COLORS.blueDark,
-    padding: 16, // Padding uniforme
+    padding: 16,
     borderRadius: 8,
     marginBottom: 10,
     width: '100%',
-    position: 'relative', // Mantém para os botões absolutos
+    flexDirection: 'row',          
+    justifyContent: 'space-between', 
+    alignItems: 'center',          
   },
 
   textoItem: {
     color: COLORS.white,
     fontSize: 14,
     marginBottom: 4,
-    textAlign: 'left', // Alinhamento natural
   },
 
   botoesContainer: {
-    position: 'absolute',
-    right: 16, // Aumente um pouco o espaçamento
-    top: 16,
     flexDirection: 'row',
-    gap: 10, // Aumente o espaçamento entre botões
+    gap: 10,
+    marginLeft: 10, // Espaço entre texto e botões
   },
+
 
 });
