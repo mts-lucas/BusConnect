@@ -11,7 +11,7 @@ type BotaoViagemProps = {
 export const BotaoViagem: React.FC<BotaoViagemProps> = ({ 
   tipo, 
   onPress, 
-  tamanho = 24 
+  tamanho = 40 
 }) => {
   const icone = tipo === 'editar' ? 'pencil' : 'trash';
   const estiloBotao = tipo === 'editar' ? styles.botaoEditar : styles.botaoExcluir;

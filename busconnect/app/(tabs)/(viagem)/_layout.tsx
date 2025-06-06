@@ -113,8 +113,8 @@ export default function ViagemScreen() {
           {viagensDoDia.map((viagem, index) => (
             <View key={index} style={styles.itemLista}>
               <View style={styles.botoesContainer}>
-                <BotaoViagem tipo="editar" tamanho={24} />
-                <BotaoViagem tipo="excluir" tamanho={24} />
+                <BotaoViagem tipo="editar" tamanho={40} />
+                <BotaoViagem tipo="excluir" tamanho={40} />
               </View>
 
              

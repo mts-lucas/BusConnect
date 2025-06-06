@@ -3,7 +3,7 @@ import { COLORS } from '../../../constants/colors';
 
 export const styles = StyleSheet.create({
   botaoEditar: {
-    backgroundColor: COLORS.yellowLight,
+    backgroundColor: COLORS.greenDark,
     justifyContent: 'center',
     alignItems: 'center',
   },
