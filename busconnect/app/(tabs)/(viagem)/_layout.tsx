@@ -117,7 +117,7 @@ export default function ViagemScreen() {
                 <BotaoViagem tipo="excluir" tamanho={40} />
               </View>
 
-             
+              <View style={{ marginRight: 60 }}> 
               <Text style={styles.textoItem}>
                 <Text style={textStyles.bold}>Rota: </Text>
                 {viagem.rota || 'Não especificada'}
@@ -130,6 +130,7 @@ export default function ViagemScreen() {
                 <Text style={textStyles.bold}>Status: </Text>
                 {viagem.status || 'Aberto'}
               </Text>
+            </View>
             </View>
           ))}
         </>

@@ -59,29 +59,26 @@ export const styles = StyleSheet.create({
   },
   itemLista: {
     backgroundColor: COLORS.blueDark,
-    paddingVertical: 12,
-    paddingHorizontal: 16,  // Mantém um padding interno apenas
+    padding: 16, // Padding uniforme
     borderRadius: 8,
     marginBottom: 10,
     width: '100%',
-    marginLeft: 0,   // Remove margens laterais
-    paddingLeft: 0,  // Remove padding interno à esquerda
+    position: 'relative', // Mantém para os botões absolutos
   },
+
   textoItem: {
     color: COLORS.white,
     fontSize: 14,
     marginBottom: 4,
-    paddingLeft: 0,  // Textos grudados no canto esquerdo
-    marginLeft: 0,   // Remove margem automática
+    textAlign: 'left', // Alinhamento natural
   },
-  
 
   botoesContainer: {
     position: 'absolute',
-    right: 10,
-    top: 10,
+    right: 16, // Aumente um pouco o espaçamento
+    top: 16,
     flexDirection: 'row',
-    gap: 6,
+    gap: 10, // Aumente o espaçamento entre botões
   },
 
 });
