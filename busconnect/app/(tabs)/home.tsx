@@ -1,13 +1,11 @@
 import { View, StyleSheet, ScrollView } from 'react-native';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router'; // Adicione useRouter
 import { GreetingHeader } from '../../components/home/GreetingHeader';
 import { HomeCard } from '../../components/home/HomeCard';
 import { COLORS } from '../../constants/colors';
 
 export default function HomeScreen() {
-  const handleCardPress = () => {
-    console.log('Card pressionado');
-  };
+  const router = useRouter(); // Inicialize o router
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -19,27 +17,36 @@ export default function HomeScreen() {
         <HomeCard
           title="Confirmar Presença"
           description="Registre sua presença no ônibus"
-          onPress={handleCardPress}
+          onPress={() => console.log('Confirmar Presença pressionado')}
           iconName="checkmark-circle"
         />
         
         <HomeCard
           title="Histórico de Viagens"
           description="Visualize suas viagens anteriores"
-          onPress={handleCardPress}
+          onPress={() => console.log('Histórico pressionado')}
           iconName="time"
         />
         
         <HomeCard
           title="Contatos"
           description="Entre em contato com a equipe"
-          onPress={handleCardPress}
+          onPress={() => console.log('Contatos pressionado')}
           iconName="call"
+        />
+        
+        <HomeCard
+          title="Viagem"
+          description="Calendário de viagens"
+          onPress={() => router.push('/(tabs)/(viagem)')} // Navegação direta aqui
+          iconName="bus"
         />
       </View>
     </ScrollView>
   );
 }
+
+// Mantenha os estilos como estão
 
 const styles = StyleSheet.create({
   container: {
