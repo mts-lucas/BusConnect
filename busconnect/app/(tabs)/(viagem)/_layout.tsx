@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import CalendarViagem from '../../../components/Viagem/CalendarViagem';
 import { COLORS } from '../../../constants/colors';
-import { styles, textStyles } from './styles';
+import { styles, textStyles } from './index';
 import { BotaoViagem } from '../../../components/Viagem/BotaoViagem';
 import { ModalConfirmacao } from '../../../components/Viagem/ModalConfirmacao';
 import { ModalEdicao } from '../../../components/Viagem/ModalEdicao';
@@ -199,3 +199,4 @@ export default function ViagemScreen() {
     </View>
   );
 }
+
