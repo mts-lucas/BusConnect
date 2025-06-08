@@ -27,7 +27,14 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "A aplicação precisa acessar suas fotos para atualizar seu avatar.",
+          "cameraPermission": "A aplicação precisa acessar sua câmera para tirar fotos."
+        }
+      ]
     ]
   }
 }
