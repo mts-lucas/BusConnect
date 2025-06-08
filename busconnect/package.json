@@ -10,8 +10,11 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
+    "@react-native-picker/picker": "2.11.0",
+    "@react-navigation/bottom-tabs": "^7.3.14",
     "expo": "~53.0.7",
     "expo-constants": "~17.1.6",
+    "expo-image-picker": "~16.1.4",
     "expo-linking": "~7.1.5",
     "expo-router": "~5.0.7",
     "expo-status-bar": "~2.2.3",
@@ -19,8 +22,7 @@
     "react-native": "0.79.2",
     "react-native-calendars": "^1.1312.1",
     "react-native-safe-area-context": "5.4.0",
-    "react-native-screens": "~4.10.0",
-    "@react-native-picker/picker": "2.11.0"
+    "react-native-screens": "~4.10.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
