@@ -1,11 +1,12 @@
-
 import { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import CalendarViagem from '../../../components/Viagem/CalendarViagem';
 import { COLORS } from '../../../constants/colors';
-import { styles, textStyles } from './styles'; // Importa os styles de ()
+import { styles, textStyles } from './styles';
 import { BotaoViagem } from '../../../components/Viagem/BotaoViagem';
+import { ModalConfirmacao } from '../../../components/Viagem/ModalConfirmacao';
+import { ModalEdicao } from '../../../components/Viagem/ModalEdicao';
 
 type Viagem = {
   data: string;
@@ -20,6 +21,10 @@ export default function ViagemScreen() {
   const [rota, setRota] = useState('');
   const [horario, setHorario] = useState('');
   const [viagens, setViagens] = useState<Viagem[]>([]);
+  const [modalVisivel, setModalVisivel] = useState(false);
+  const [viagemParaExcluir, setViagemParaExcluir] = useState<Viagem | null>(null);
+  const [modalEdicaoVisivel, setModalEdicaoVisivel] = useState(false);
+  const [viagemParaEditar, setViagemParaEditar] = useState<Viagem | null>(null);
 
   const handleDayPress = (day: { dateString: string }) => {
     setSelectedDate(day.dateString);
@@ -37,6 +42,30 @@ export default function ViagemScreen() {
     setShowForm(false);
     setRota('');
     setHorario('');
+  };
+
+  const confirmarExclusao = () => {
+    if (viagemParaExcluir) {
+      setViagens(viagens.filter(v => v !== viagemParaExcluir));
+      setModalVisivel(false);
+      setViagemParaExcluir(null);
+    }
+  };
+
+  const iniciarEdicao = (viagem: Viagem) => {
+    setViagemParaEditar(viagem);
+    setModalEdicaoVisivel(true);
+  };
+
+  const confirmarEdicao = (dadosEditados: { rota: string; horario: string; status: string }) => {
+    if (viagemParaEditar) {
+      const viagensAtualizadas = viagens.map(v =>
+        v === viagemParaEditar ? { ...v, ...dadosEditados } : v
+      );
+      setViagens(viagensAtualizadas);
+      setModalEdicaoVisivel(false);
+      setViagemParaEditar(null);
+    }
   };
 
   const viagensDoDia = viagens.filter(v => v.data === selectedDate);
@@ -112,7 +141,6 @@ export default function ViagemScreen() {
           <Text style={styles.tituloLista}>Viagens em {selectedDate}:</Text>
           {viagensDoDia.map((viagem, index) => (
             <View key={index} style={styles.itemLista}>
-              {/* Container de texto  */}
               <View style={{ flex: 1 }}>
                 <Text style={styles.textoItem}>
                   <Text style={textStyles.bold}>Rota: </Text>
@@ -128,14 +156,45 @@ export default function ViagemScreen() {
                 </Text>
               </View>
 
-              {/* Botões  */}
               <View style={styles.botoesContainer}>
-                <BotaoViagem tipo="editar" tamanho={40} />
-                <BotaoViagem tipo="excluir" tamanho={40} />
+                <BotaoViagem 
+                  tipo="editar" 
+                  tamanho={40} 
+                  onPress={() => iniciarEdicao(viagem)} 
+                />
+                <BotaoViagem 
+                  tipo="excluir" 
+                  tamanho={40}
+                  onPress={() => {
+                    setViagemParaExcluir(viagem);
+                    setModalVisivel(true);
+                  }}
+                />
               </View>
             </View>
           ))}
         </>
+      )}
+
+      <ModalConfirmacao
+        visivel={modalVisivel}
+        onCancelar={() => setModalVisivel(false)}
+        onConfirmar={confirmarExclusao}
+        mensagem="Deseja mesmo excluir essa viagem?"
+      />
+
+      {viagemParaEditar && (
+        <ModalEdicao
+          visivel={modalEdicaoVisivel}
+          viagemInicial={{
+            rota: viagemParaEditar.rota,
+            horario: viagemParaEditar.horario,
+            status: viagemParaEditar.status
+          }}
+          onCancelar={() => setModalEdicaoVisivel(false)}
+          onSalvar={confirmarEdicao}
+          titulo="Editar Viagem"
+        />
       )}
     </View>
   );

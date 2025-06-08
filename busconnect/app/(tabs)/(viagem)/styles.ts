@@ -60,27 +60,27 @@ export const styles = StyleSheet.create({
 
 
   itemLista: {
-    backgroundColor: COLORS.blueDark,
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 10,
-    width: '100%',
-    flexDirection: 'row',          
-    justifyContent: 'space-between', 
-    alignItems: 'center',          
-  },
-
+  backgroundColor: COLORS.blueDark,
+  padding: 16,
+  borderRadius: 8,
+  marginBottom: 10,
+  width: '100%',
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  position: 'relative',
+},
+botoesContainer: {
+  flexDirection: 'row',
+  gap: 10,
+},
   textoItem: {
     color: COLORS.white,
     fontSize: 14,
     marginBottom: 4,
   },
 
-  botoesContainer: {
-    flexDirection: 'row',
-    gap: 10,
-    marginLeft: 10, // Espaço entre texto e botões
-  },
+  
 
 
 });
