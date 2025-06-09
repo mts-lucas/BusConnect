@@ -7,6 +7,7 @@ import CalendarViagem from '../../../components/Viagem/CalendarViagem';
 import { BotaoViagem } from '../../../components/Viagem/BotaoViagem';
 import { ModalConfirmacao } from '../../../components/Viagem/ModalConfirmacao';
 import { ModalEdicao } from '../../../components/Viagem/ModalEdicao';
+import { useRouter } from 'expo-router';
 
 
 type Viagem = {
@@ -26,6 +27,8 @@ export default function ViagemScreen() {
   const [viagemParaExcluir, setViagemParaExcluir] = useState<Viagem | null>(null);
   const [modalEdicaoVisivel, setModalEdicaoVisivel] = useState(false);
   const [viagemParaEditar, setViagemParaEditar] = useState<Viagem | null>(null);
+
+  const router = useRouter();
 
   const handleDayPress = (day: { dateString: string }) => {
     setSelectedDate(day.dateString);
@@ -138,7 +141,7 @@ export default function ViagemScreen() {
       )}
 
       {viagensDoDia.length > 0 && (
-        <>
+        <TouchableOpacity onPress={()=>router.push("/visualizarViagem")}>
           <Text style={styles.tituloLista}>Viagens em {selectedDate}:</Text>
           {viagensDoDia.map((viagem, index) => (
             <View key={index} style={styles.itemLista}>
@@ -174,7 +177,7 @@ export default function ViagemScreen() {
               </View>
             </View>
           ))}
-        </>
+        </TouchableOpacity>
       )}
 
       <ModalConfirmacao
