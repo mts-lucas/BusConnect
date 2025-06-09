@@ -2,11 +2,12 @@ import React from 'react';
 import { TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { styles, } from './styles';
-type BotaoViagemProps = {
+
+interface BotaoViagemProps {
   tipo: 'editar' | 'excluir';
-  onPress?: () => void;
+  onPress: () => void;
   tamanho?: number;
-};
+}
 
 export const BotaoViagem: React.FC<BotaoViagemProps> = ({ 
   tipo, 

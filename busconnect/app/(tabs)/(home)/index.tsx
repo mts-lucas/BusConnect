@@ -1,8 +1,8 @@
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Stack, useRouter } from 'expo-router'; // Adicione useRouter
-import { GreetingHeader } from '../../components/home/GreetingHeader';
-import { HomeCard } from '../../components/home/HomeCard';
-import { COLORS } from '../../constants/colors';
+import { GreetingHeader } from '../../../components/home/GreetingHeader';
+import { HomeCard } from '../../../components/home/HomeCard';
+import { COLORS } from '../../../constants/colors';
 
 export default function HomeScreen() {
   const router = useRouter(); // Inicialize o router
@@ -38,7 +38,7 @@ export default function HomeScreen() {
         <HomeCard
           title="Viagem"
           description="Calendário de viagens"
-          onPress={() => router.push('/(tabs)/(viagem)')} // Navegação direta aqui
+          onPress={() => router.push('/(tabs)/(home)/viagem')} // Navegação direta aqui
           iconName="bus"
         />
       </View>
