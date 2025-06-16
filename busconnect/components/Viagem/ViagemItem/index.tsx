@@ -17,27 +17,26 @@ export const ViagemItem: React.FC<ViagemItemProps> = ({ viagem, onPress }) => {
       ]}
       onPress={onPress}
     >
-      <View style={styles.infoContainer}>
+      <Text style={styles.textoItem}>
+        <Text style={styles.textoNegrito}>Rota: </Text>
+        {viagem.rota.origem} - {viagem.rota.destino}
+      </Text>
+      <Text style={styles.textoItem}>
+        <Text style={styles.textoNegrito}>Turno: </Text>
+        {viagem.turno}
+      </Text>
+      {viagem.presenca?.horarioSaida && (
         <Text style={styles.textoItem}>
-          <Text style={styles.textoNegrito}>Rota: </Text>
-          {viagem.rota.origem} - {viagem.rota.destino}
+          <Text style={styles.textoNegrito}>Saída: </Text>
+          {viagem.presenca.horarioSaida}
         </Text>
-        <Text style={styles.textoItem}>
-          <Text style={styles.textoNegrito}>Turno: </Text>
-          {viagem.turno}
-        </Text>
-        {viagem.presenca?.horarioSaida && (
-          <Text style={styles.textoItem}>
-            <Text style={styles.textoNegrito}>Saída: </Text>
-            {viagem.presenca.horarioSaida}
-          </Text>
-        )}
-        <Text style={styles.textoItem}>
-          <Text style={styles.textoNegrito}>Status: </Text>
-          {viagem.presenca ? 'Presença confirmada' : 'Aguardando confirmação'}
-        </Text>
-      </View>
+      )}
+      <Text style={styles.textoItem}>
+        <Text style={styles.textoNegrito}>Status: </Text>
+        {viagem.presenca ? 'Presença confirmada' : 'Aguardando confirmação'}
+      </Text>
     </TouchableOpacity>
   );
 };
+
 
