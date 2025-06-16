@@ -8,14 +8,7 @@ import { BotaoViagem } from '../../../components/Viagem/BotaoViagem';
 import { ModalConfirmacao } from '../../../components/Viagem/ModalConfirmacao';
 import { ModalEdicao } from '../../../components/Viagem/ModalEdicao';
 import { useRouter } from 'expo-router';
-
-
-type Viagem = {
-  data: string;
-  rota: string;
-  horario: string;
-  status: string;
-};
+import { Viagem } from '../../../components/Viagem/types';
 
 export default function ViagemScreen() {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
