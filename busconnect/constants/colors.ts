@@ -9,10 +9,12 @@ export const COLORS = {
     greenDark: '#66CC41',
     blueLight: '#41CCA7',
     blueDark: '#4181CC',
-    blueCayo: '#586BA4',
+    blueCobalt: '#586BA4',
     redDark: '#A31D00',
     yellowLight: '#FFB703',
     yellowDark: '#FB8500',
-    red: '#e74c3c'
+    red: '#e74c3c',
+    DeepPink: '#FF1493',
+    LimeGreen:	'#32CD32',
 
   }

@@ -31,7 +31,7 @@ export default function HomeScreen() {
         <HomeCard
           title="Contatos"
           description="Entre em contato com a equipe"
-          onPress={() => console.log('Contatos pressionado')}
+          onPress={() => router.push('/(tabs)/(home)/contato')}
           iconName="call"
         />
         
