@@ -54,4 +54,22 @@ export const styles = StyleSheet.create({
     color: COLORS.white,
     fontWeight: 'bold',
   },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  checkboxRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  checkboxLabel: {
+    marginLeft: 8,
+    fontSize: 16,
+    color: COLORS.white,
+    fontWeight: 'bold',
+  },
+  botaoDisabled: {
+    opacity: 0.5,
+  },
 });

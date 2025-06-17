@@ -1,11 +1,11 @@
 import { Viagem } from '../types';
 
-export interface ConfirmarPresencaModalProps {
+export type ConfirmarPresencaModalProps = {
   visible: boolean;
   onClose: () => void;
   viagem: Viagem | null;
   horarioSaida: string;
   setHorarioSaida: (value: string) => void;
-  onConfirm: () => void;
+  onConfirm: (presenca: { ida: boolean; volta: boolean }) => void;
   onCancelPresenca: () => void;
-}
+};
