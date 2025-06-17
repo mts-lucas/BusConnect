@@ -1,7 +1,7 @@
 export interface Presenca  {
   ida: boolean;
   volta: boolean;
-  horarioSaida: string;
+  horarioSaida: string | null;
 };
 
 export interface Rota  {
