@@ -23,7 +23,7 @@ export const viagensMock: Viagem[] = [
     presenca: {
       ida: true,
       volta: false,
-      horarioSaida: '07:30'
+      horarioSaida: null
     }
   },
   {
