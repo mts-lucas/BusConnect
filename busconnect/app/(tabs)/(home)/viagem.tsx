@@ -8,7 +8,7 @@ import { BotaoViagem } from '../../../components/Viagem/BotaoViagem';
 import { ModalConfirmacao } from '../../../components/Viagem/ModalConfirmacao';
 import { ModalEdicao } from '../../../components/Viagem/ModalEdicao';
 import { useRouter } from 'expo-router';
-
+// import { Viagem } from '../../../components/Viagem/types';
 
 type Viagem = {
   data: string;

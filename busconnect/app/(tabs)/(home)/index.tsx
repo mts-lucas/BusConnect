@@ -17,7 +17,7 @@ export default function HomeScreen() {
         <HomeCard
           title="Confirmar Presença"
           description="Registre sua presença no ônibus"
-          onPress={() => console.log('Confirmar Presença pressionado')}
+          onPress={() => router.push('/(tabs)/(home)/confirmarPresenca')} 
           iconName="checkmark-circle"
         />
         
