@@ -14,6 +14,17 @@ export const styles = StyleSheet.create({
     marginBottom: 16,
     backgroundColor: COLORS.grayLight,
   },
+  passwordContainer: {
+    position: 'relative',
+  },
+  passwordInput: {
+    paddingRight: 50, // Espaço para o ícone
+  },
+  eyeIcon: {
+    position: 'absolute',
+    right: 15,
+    top: 15,
+  },
   button: {
     height: 50,
     backgroundColor: COLORS.yellowLight,
@@ -21,6 +32,9 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 8,
+  },
+  buttonDisabled: {
+    backgroundColor: COLORS.grayLight,
   },
   buttonText: {
     color: COLORS.black,

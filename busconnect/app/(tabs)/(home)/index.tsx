@@ -3,9 +3,10 @@ import { Stack, useRouter } from 'expo-router'; // Adicione useRouter
 import { GreetingHeader } from '../../../components/home/GreetingHeader';
 import { HomeCard } from '../../../components/home/HomeCard';
 import { COLORS } from '../../../constants/colors';
+import { useAuth } from '@/context/AuthContext';
 
 export default function HomeScreen() {
-  const router = useRouter(); // Inicialize o router
+  const router = useRouter();
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
