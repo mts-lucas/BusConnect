@@ -4,6 +4,6 @@ export interface LoginFormValues {
 }
 
 export interface LoginFormProps {
-  onSubmit: (values: LoginFormValues) => void;
-  loading?: boolean;
+  onSubmit: (email: string, password: string) => void;
+  loading: boolean;
 }

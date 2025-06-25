@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, Text, StyleProp, ViewStyle } from 'react-native';
-import { styles } from './styles';
+import { View, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { LoginFormProps, LoginFormValues } from './types';
 import { COLORS } from '../../constants/colors';
+import { styles } from './styles';
 
 export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, loading }) => {
   const [values, setValues] = useState<LoginFormValues>({
@@ -15,7 +15,10 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, loading }) => {
   };
 
   const handleSubmit = () => {
-    onSubmit(values);
+    if (!values.email || !values.password) {
+      return;
+    }
+    onSubmit(values.email, values.password);
   };
 
   return (
@@ -40,9 +43,12 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, loading }) => {
       />
       
       <TouchableOpacity 
-        style={styles.button} 
+        style={[
+          styles.button,
+          (!values.email || !values.password) && styles.buttonDisabled
+        ]} 
         onPress={handleSubmit}
-        disabled={loading}
+        disabled={loading || !values.email || !values.password}
       >
         <Text style={styles.buttonText}>
           {loading ? 'Carregando...' : 'Entrar'}

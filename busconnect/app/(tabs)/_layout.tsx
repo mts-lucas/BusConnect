@@ -1,8 +1,25 @@
-import { Tabs } from 'expo-router';
+import { Tabs, Redirect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../../constants/colors';
+import { useAuth } from '../../context/AuthContext';
+import { ActivityIndicator, View } from 'react-native';
 
 export default function TabsLayout() {
+
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.black }}>
+        <ActivityIndicator size="large" color={COLORS.yellowLight} />
+      </View>
+    );
+  }
+
+  if (!user) {
+    return <Redirect href="/(auth)" />;
+  }
+
   return (
     <Tabs
       screenOptions={{

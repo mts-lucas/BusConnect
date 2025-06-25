@@ -1,20 +1,43 @@
 import { useState } from 'react';
-import { View, StyleSheet, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, StyleSheet, SafeAreaView, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { Logo } from '../../components/Logo';
 import { LoginForm } from '../../components/LoginForm';
 import { COLORS } from '../../constants/colors';
+import { auth } from '../../firebaseConfig';
 
 export default function LoginScreen() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async () => {
+  const signIn = async (email: string, password: string) => {
     setLoading(true);
-    // Simula um tempo de carregamento
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setLoading(false);
-    router.replace('/(tabs)/(home)');
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      router.replace('/(tabs)/(home)');
+    } catch (error: any) {
+      let errorMessage = "Ocorreu um erro ao fazer login";
+      
+      switch (error.code) {
+        case 'auth/invalid-email':
+          errorMessage = "Email inválido";
+          break;
+        case 'auth/user-disabled':
+          errorMessage = "Usuário desativado";
+          break;
+        case 'auth/user-not-found':
+        case 'auth/wrong-password':
+          errorMessage = "Email ou senha incorretos";
+          break;
+        default:
+          errorMessage = error.message || errorMessage;
+      }
+      
+      Alert.alert("Erro", errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -27,7 +50,7 @@ export default function LoginScreen() {
         
         <View style={styles.content}>
           <Logo style={styles.logo} />
-          <LoginForm onSubmit={handleSubmit} loading={loading} />
+          <LoginForm onSubmit={signIn} loading={loading} />
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>

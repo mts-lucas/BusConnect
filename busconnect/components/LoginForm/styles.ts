@@ -22,6 +22,9 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 8,
   },
+  buttonDisabled: {
+    backgroundColor: COLORS.grayLight,
+  },
   buttonText: {
     color: COLORS.black,
     fontSize: 16,
