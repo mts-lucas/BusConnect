@@ -56,8 +56,8 @@ export const StudentProfileForm: React.FC<StudentProfileFormProps> = ({ initialD
         <TextInput
           style={styles.input}
           placeholder="Digite seu nome"
-          value={studentUserData.nome}
-          onChangeText={(text) => handleChange('nome', text)}
+          value={studentUserData.name}
+          onChangeText={(text) => handleChange('name', text)}
         />
       </View>
 
@@ -69,17 +69,6 @@ export const StudentProfileForm: React.FC<StudentProfileFormProps> = ({ initialD
           keyboardType="email-address"
           value={studentUserData.email}
           onChangeText={(text) => handleChange('email', text)}
-        />
-      </View>
-
-      <View style={styles.fieldContainer}>
-        <Text style={styles.fieldLabel}>Senha</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Digite sua senha"
-          secureTextEntry
-          value={studentUserData.senha}
-          onChangeText={(text) => handleChange('senha', text)}
         />
       </View>
 
@@ -99,8 +88,8 @@ export const StudentProfileForm: React.FC<StudentProfileFormProps> = ({ initialD
         <TextInput
           style={styles.input}
           placeholder="Digite sua matrícula"
-          value={studentUserData.matricula}
-          onChangeText={(text) => handleChange('matricula', text)}
+          value={studentUserData.registration}
+          onChangeText={(text) => handleChange('registration', text)}
         />
       </View>
 
@@ -109,8 +98,8 @@ export const StudentProfileForm: React.FC<StudentProfileFormProps> = ({ initialD
         <TextInput
           style={styles.input}
           placeholder="Digite sua instituição"
-          value={studentUserData.instituicao}
-          onChangeText={(text) => handleChange('instituicao', text)}
+          value={studentUserData.institution}
+          onChangeText={(text) => handleChange('institution', text)}
         />
       </View>
 
