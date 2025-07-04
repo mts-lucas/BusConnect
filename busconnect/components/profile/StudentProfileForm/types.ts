@@ -1,10 +1,10 @@
 export interface StudentUserData {
-  nome: string;
+  name: string;
   email: string;
   senha: string;
   telefone: string;
-  matricula: string;
-  instituicao: string;
+  registration: string;
+  institution: string;
   localidade: string;
   horarioAula: string;
   fotoUrl: string;
