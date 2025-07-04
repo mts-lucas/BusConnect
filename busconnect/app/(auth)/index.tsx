@@ -2,10 +2,15 @@ import { useState } from 'react';
 import { View, StyleSheet, SafeAreaView, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { getFirestore, doc, getDoc } from "firebase/firestore"; // Importe para o Firestore
 import { Logo } from '../../components/Logo';
 import { LoginForm } from '../../components/LoginForm';
 import { COLORS } from '../../constants/colors';
-import { auth } from '../../firebaseConfig';
+import { auth } from '../../firebaseConfig'; // Sua instância auth
+import { app } from '../../firebaseConfig'; // Sua instância do Firebase App (se não estiver já disponível globalmente)
+
+// Inicialize o Firestore
+const db = getFirestore(app); // Garanta que 'app' seja sua instância do Firebase App
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -14,11 +19,12 @@ export default function LoginScreen() {
   const signIn = async (email: string, password: string) => {
     setLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      router.replace('/(tabs)/(home)');
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      router.replace('/(tabs)/(home)'); 
+
     } catch (error: any) {
       let errorMessage = "Ocorreu um erro ao fazer login";
-      
+
       switch (error.code) {
         case 'auth/invalid-email':
           errorMessage = "Email inválido";
@@ -33,7 +39,7 @@ export default function LoginScreen() {
         default:
           errorMessage = error.message || errorMessage;
       }
-      
+
       Alert.alert("Erro", errorMessage);
     } finally {
       setLoading(false);
@@ -47,7 +53,7 @@ export default function LoginScreen() {
         style={styles.container}
       >
         <Stack.Screen options={{ headerShown: false }} />
-        
+
         <View style={styles.content}>
           <Logo style={styles.logo} />
           <LoginForm onSubmit={signIn} loading={loading} />
