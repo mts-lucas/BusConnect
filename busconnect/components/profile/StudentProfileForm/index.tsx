@@ -159,7 +159,7 @@ export const StudentProfileForm: React.FC<StudentProfileFormProps> = ({ initialD
       </View>
       <View style={styles.creationInfoContainer}>
          <Text style={styles.creationInfoText}>
-           Perfil criada em: {formatCreationDate(createdAt)}
+           Perfil criado em: {formatCreationDate(createdAt)}
          </Text>
        </View>
     </View>

@@ -117,7 +117,7 @@ export const DriverProfileForm: React.FC<DriverProfileFormProps> = ({
       </View>
       <View style={styles.creationInfoContainer}>
         <Text style={styles.creationInfoText}>
-          Perfil criada em: {formatCreationDate(createdAt)}
+          Perfil criado em: {formatCreationDate(createdAt)}
         </Text>
       </View>
     </View>
