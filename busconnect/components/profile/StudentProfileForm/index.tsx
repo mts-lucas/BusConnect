@@ -4,6 +4,7 @@ import { Picker } from '@react-native-picker/picker';
 import * as ImagePicker from 'expo-image-picker';
 import { styles } from './styles';
 import { StudentUserData, StudentProfileFormProps } from './types';
+import { Timestamp } from 'firebase/firestore';
 
 export const StudentProfileForm: React.FC<StudentProfileFormProps> = ({ initialData }) => {
   const [studentUserData, setStudentUserData] = useState<StudentUserData>(initialData);
@@ -35,6 +36,20 @@ export const StudentProfileForm: React.FC<StudentProfileFormProps> = ({ initialD
     alert('Dados atualizados com sucesso!');
     setStudentUserData({ ...studentUserData });
   };
+  const { createdAt } = initialData;
+
+  const formatCreationDate = (timestamp: Timestamp) => {
+    if (!timestamp) return 'Data não disponível';
+      
+     const date = timestamp.toDate();
+     return date.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',  
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+      });
+    };
 
   return (
     <View style={styles.container}>
@@ -78,8 +93,8 @@ export const StudentProfileForm: React.FC<StudentProfileFormProps> = ({ initialD
           style={styles.input}
           placeholder="Digite seu telefone"
           keyboardType="phone-pad"
-          value={studentUserData.telefone}
-          onChangeText={(text) => handleChange('telefone', text)}
+          value={studentUserData.phone}
+          onChangeText={(text) => handleChange('phone', text)}
         />
       </View>
 
@@ -108,8 +123,8 @@ export const StudentProfileForm: React.FC<StudentProfileFormProps> = ({ initialD
         <TextInput
           style={styles.input}
           placeholder="Digite sua localidade"
-          value={studentUserData.localidade}
-          onChangeText={(text) => handleChange('localidade', text)}
+          value={studentUserData.local}
+          onChangeText={(text) => handleChange('local', text)}
         />
       </View>
 
@@ -142,6 +157,11 @@ export const StudentProfileForm: React.FC<StudentProfileFormProps> = ({ initialD
           <Text style={styles.buttonText}>Atualizar Dados</Text>
         </TouchableOpacity>
       </View>
+      <View style={styles.creationInfoContainer}>
+         <Text style={styles.creationInfoText}>
+           Perfil criada em: {formatCreationDate(createdAt)}
+         </Text>
+       </View>
     </View>
   );
 };

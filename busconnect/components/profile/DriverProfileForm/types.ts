@@ -1,11 +1,13 @@
+import { Timestamp } from "firebase/firestore";
+
 export interface DriverUserData {
   nome: string;
   email: string;
-  senha: string;
-  telefone: string;
+  phone: string;
   licenseNumber: string;
   vehiclePlate: string;
   fotoUrl: string;
+  createdAt: Timestamp;
 }
 
 export interface DriverProfileFormProps {

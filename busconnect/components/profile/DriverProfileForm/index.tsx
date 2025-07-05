@@ -3,11 +3,15 @@ import { View, Text, TextInput, TouchableOpacity, Image } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { styles } from './styles';
 import { DriverUserData, DriverProfileFormProps } from './types';
+import { Timestamp } from 'firebase/firestore';
 
-export const DriverProfileForm: React.FC<DriverProfileFormProps> = ({ initialData }) => {
+export const DriverProfileForm: React.FC<DriverProfileFormProps> = ({ 
+  initialData,
+}) => {
   const [driverUserData, setDriverUserData] = useState<DriverUserData>(initialData);
   const [originalData] = useState<DriverUserData>(initialData);
   const [avatar, setAvatar] = useState(initialData.fotoUrl);
+  const { createdAt } = initialData;
 
   const handleChange = (field: keyof DriverUserData, value: string) => {
     setDriverUserData(prev => ({ ...prev, [field]: value }));
@@ -35,6 +39,19 @@ export const DriverProfileForm: React.FC<DriverProfileFormProps> = ({ initialDat
     setDriverUserData({ ...driverUserData });
   };
 
+  const formatCreationDate = (timestamp: Timestamp) => {
+    if (!timestamp) return 'Data não disponível';
+    
+    const date = timestamp.toDate();
+    return date.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.avatarContainer}>
@@ -55,25 +72,25 @@ export const DriverProfileForm: React.FC<DriverProfileFormProps> = ({ initialDat
         />
       </View>
 
-
       <View style={styles.fieldContainer}>
         <Text style={styles.fieldLabel}>Telefone</Text>
         <TextInput
           style={styles.input}
           placeholder="Digite seu telefone"
           keyboardType="phone-pad"
-          value={driverUserData.telefone}
-          onChangeText={(text) => handleChange('telefone', text)}
+          value={driverUserData.phone}
+          onChangeText={(text) => handleChange('phone', text)}
         />
       </View>
 
       <View style={styles.fieldContainer}>
         <Text style={styles.fieldLabel}>Número da CNH</Text>
         <TextInput
-          style={styles.input}
-          placeholder="Digite seu número da CNH"
+          style={[styles.input,]}
+          placeholder="Número da CNH"
           value={driverUserData.licenseNumber}
-          onChangeText={(text) => handleChange('licenseNumber', text)}
+          editable={false}
+          selectTextOnFocus={false}
         />
       </View>
 
@@ -86,7 +103,6 @@ export const DriverProfileForm: React.FC<DriverProfileFormProps> = ({ initialDat
           onChangeText={(text) => handleChange('vehiclePlate', text)}
         />
       </View>
-
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={[
@@ -98,6 +114,11 @@ export const DriverProfileForm: React.FC<DriverProfileFormProps> = ({ initialDat
         >
           <Text style={styles.buttonText}>Atualizar Dados</Text>
         </TouchableOpacity>
+      </View>
+      <View style={styles.creationInfoContainer}>
+        <Text style={styles.creationInfoText}>
+          Perfil criada em: {formatCreationDate(createdAt)}
+        </Text>
       </View>
     </View>
   );

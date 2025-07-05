@@ -72,4 +72,14 @@ export const styles = StyleSheet.create({
   buttonEnabled: {
     backgroundColor: COLORS.yellowLight,
   },
+    creationInfoContainer: {
+  marginTop: 20,
+  paddingVertical: 10,
+  borderTopColor: '#e0e0e0',
+  alignItems: 'center',
+},
+creationInfoText: {
+  fontSize: 14,
+  color: '#666',
+},
 });
