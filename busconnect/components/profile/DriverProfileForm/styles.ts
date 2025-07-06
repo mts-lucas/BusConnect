@@ -1,3 +1,5 @@
+// busconnect/components/profile/DriverProfileForm/styles.ts
+
 import { StyleSheet } from 'react-native';
 import { COLORS } from '../../../constants/colors';
 
@@ -41,20 +43,9 @@ export const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
     color: COLORS.black,
   },
-  pickerContainer: {
-    borderWidth: 1,
-    borderColor: COLORS.grayLight,
-    borderRadius: 8,
-    overflow: 'hidden',
-  },
-  picker: {
-    height: 50,
-    backgroundColor: COLORS.white,
-    color: COLORS.black,
-  },
   buttonContainer: {
     marginTop: 24,
-    marginBottom: 40, // Espaço extra para o bottom tab
+    marginBottom: 40,
   },
   button: {
     height: 50,
@@ -72,7 +63,7 @@ export const styles = StyleSheet.create({
   buttonEnabled: {
     backgroundColor: COLORS.yellowLight,
   },
-    creationInfoContainer: {
+  creationInfoContainer: {
   marginTop: 20,
   paddingVertical: 10,
   borderTopColor: '#e0e0e0',

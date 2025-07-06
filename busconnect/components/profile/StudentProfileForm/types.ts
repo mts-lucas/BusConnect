@@ -1,13 +1,15 @@
+import { Timestamp } from 'firebase/firestore';
+
 export interface StudentUserData {
-  nome: string;
+  name: string;
   email: string;
-  senha: string;
-  telefone: string;
-  matricula: string;
-  instituicao: string;
-  localidade: string;
+  phone: string;
+  registration: string;
+  institution: string;
+  local: string;
   horarioAula: string;
   fotoUrl: string;
+  createdAt: Timestamp;
 }
 
 export interface StudentProfileFormProps {
