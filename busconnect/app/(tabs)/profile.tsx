@@ -1,27 +1,47 @@
-// busconnect/app/(tabs)/profile.tsx
-import React, { useEffect, useState } from 'react'; // Importe useEffect e useState
-import { SafeAreaView, ScrollView, StyleSheet, ActivityIndicator, Text, View, Alert} from 'react-native'; // Importe ActivityIndicator e Text, View
-import { Stack, useRouter } from 'expo-router'; // Adicione useRouter
+import React, { useEffect, useState } from 'react';
+import { SafeAreaView, ScrollView, StyleSheet, ActivityIndicator, Text, View, TouchableOpacity } from 'react-native';
+import { Stack, useRouter } from 'expo-router';
 import { StudentProfileForm } from '../../components/profile/StudentProfileForm';
-import { DriverProfileForm } from '../../components/profile/DriverProfileForm'; // Importe o componente do Motorista
+import { DriverProfileForm } from '../../components/profile/DriverProfileForm';
 import { COLORS } from '../../constants/colors';
-import { useAuth } from '../../context/AuthContext'; // Importe o useAuth
-import { getFirestore, doc, getDoc } from "firebase/firestore"; // Importe Firestore
-import { app } from '../../firebaseConfig'; // Sua instância do Firebase App
+import { useAuth } from '../../context/AuthContext';
+import { getFirestore, doc, getDoc, DocumentData } from "firebase/firestore"; // Importe DocumentData
+import { app } from '../../firebaseConfig';
+import { StudentUserData } from '../../components/profile/StudentProfileForm/types'; // Importe tipos específicos
+import { DriverUserData } from '../../components/profile/DriverProfileForm/types'; // Importe tipos específicos
 
 // Inicialize o Firestore
 const db = getFirestore(app);
 
+// Componente de Modal Personalizado para exibir mensagens
+// Tipagem explícita para as props
+const CustomModal = ({ message, onClose }: { message: string | null; onClose: () => void }) => {
+  if (!message) return null;
+
+  return (
+    <View style={modalStyles.overlay}>
+      <View style={modalStyles.container}>
+        <Text style={modalStyles.message}>{message}</Text>
+        <TouchableOpacity onPress={onClose} style={modalStyles.button}>
+          <Text style={modalStyles.buttonText}>OK</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
+
 export default function ProfileScreen() {
-  const router = useRouter(); // Adicione useRouter para redirecionamento
-  const { user, loading: authLoading } = useAuth(); // Obtenha o user e o estado de carregamento do AuthContext
-  const [userProfileData, setUserProfileData] = useState<any | null>(null);
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
+  // Use um tipo mais abrangente para userProfileData
+  const [userProfileData, setUserProfileData] = useState<StudentUserData | DriverUserData | null>(null);
   const [profileLoading, setProfileLoading] = useState(true);
   const [userRole, setUserRole] = useState<string | null>(null);
+  // Inicialize modalMessage para aceitar string ou null
+  const [modalMessage, setModalMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
-      // Verifica se a autenticação terminou e se há um usuário logado
       if (!authLoading && user) {
         setProfileLoading(true);
         try {
@@ -29,37 +49,42 @@ export default function ProfileScreen() {
           const userDocSnap = await getDoc(userDocRef);
 
           if (userDocSnap.exists()) {
-            const data = userDocSnap.data();
+            const data = userDocSnap.data() as StudentUserData | DriverUserData; // Cast para o tipo esperado
             setUserProfileData(data);
             setUserRole(data.role as string); // Assume que 'role' é uma string
           } else {
             console.warn("Documento de perfil do usuário não encontrado no Firestore para UID:", user.uid);
             setUserProfileData(null);
             setUserRole(null);
-            Alert.alert("Erro de Perfil", "Seu perfil não foi encontrado. Entre em contato com o suporte.");
+            // Agora setModalMessage aceita string
+            setModalMessage("Seu perfil não foi encontrado. Entre em contato com o suporte.");
           }
         } catch (error) {
           console.error("Erro ao buscar o perfil do usuário:", error);
           setUserProfileData(null);
           setUserRole(null);
-          Alert.alert("Erro", "Ocorreu um erro ao carregar seu perfil.");
+          // Agora setModalMessage aceita string
+          setModalMessage("Ocorreu um erro ao carregar seu perfil.");
         } finally {
           setProfileLoading(false);
         }
       } else if (!authLoading && !user) {
-        // Se a autenticação terminou e não há usuário, redirecione para a tela de login
-        router.replace('/(auth)'); 
+        router.replace('/(auth)');
       }
     };
 
     fetchUserProfile();
-  }, [user, authLoading]); // Dependências: executa quando o user ou authLoading mudam
+  }, [user, authLoading]);
 
-  // Exibe um indicador de carregamento enquanto os dados estão sendo buscados
+  // Função para fechar o modal
+  const handleCloseModal = () => {
+    setModalMessage(null);
+  };
+
   if (authLoading || profileLoading) {
     return (
       <SafeAreaView style={styles.container}>
-        <Stack.Screen options={{ 
+        <Stack.Screen options={{
             title: 'Meu Perfil',
             headerStyle: { backgroundColor: COLORS.grayDark },
             headerTintColor: COLORS.white,
@@ -72,11 +97,10 @@ export default function ProfileScreen() {
     );
   }
 
-  // Se não houver usuário logado (deveria ser pego pelo router.replace acima, mas é um fallback)
   if (!user) {
     return (
       <SafeAreaView style={styles.container}>
-        <Stack.Screen options={{ 
+        <Stack.Screen options={{
             title: 'Meu Perfil',
             headerStyle: { backgroundColor: COLORS.grayDark },
             headerTintColor: COLORS.white,
@@ -88,41 +112,43 @@ export default function ProfileScreen() {
     );
   }
 
-  // Objeto de dados para passar aos formulários, ajustando o campo 'senha'
+  // Garante que userProfileData seja um objeto antes de espalhar
   const initialFormData = userProfileData ? {
     ...userProfileData,
-    email: userProfileData.email || user.email || '', // Garante que o email do Auth seja um fallback
-    nome: userProfileData.name || user.displayName || '', // Prioriza 'name' do Firestore, depois displayName
-    senha: '', // Senha nunca deve ser exibida, envie vazio ou remova do tipo
-    fotoUrl: userProfileData.fotoUrl || "https://randomuser.me/api/portraits/men/1.jpg" // Fallback para foto
+    email: userProfileData.email || user.email || '',
+    // 'nome' para Driver, 'name' para Student. Use um fallback.
+    nome: (userRole === "driver" ? (userProfileData as DriverUserData).name : (userProfileData as StudentUserData).name) || user.displayName || '',
+    senha: '', // Senha nunca deve ser exibida ou enviada, mantenha vazia
+    fotoUrl: userProfileData.fotoUrl || "https://placehold.co/100x100/CCCCCC/FFFFFF?text=Avatar" // Placeholder para avatar
   } : null;
 
 
   return (
     <SafeAreaView style={styles.container}>
-      <Stack.Screen options={{ 
+      <Stack.Screen options={{
         title: 'Meu Perfil',
         headerStyle: {
           backgroundColor: COLORS.grayDark,
         },
         headerTintColor: COLORS.white,
       }} />
-      
-      <ScrollView 
+
+      <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         {userRole === "student" && initialFormData ? (
-          <StudentProfileForm initialData={initialFormData} />
+          <StudentProfileForm initialData={initialFormData as StudentUserData} userUid={user.uid} />
         ) : userRole === "driver" && initialFormData ? (
-          <DriverProfileForm initialData={initialFormData} />
+          <DriverProfileForm initialData={initialFormData as DriverUserData} userUid={user.uid} />
         ) : (
           <Text style={styles.errorMessage}>
             Não foi possível carregar seu perfil ou seu tipo de usuário é desconhecido.
           </Text>
         )}
       </ScrollView>
+      <CustomModal message={modalMessage} onClose={handleCloseModal} />
     </SafeAreaView>
   );
 }
@@ -150,4 +176,42 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontSize: 16,
   }
+});
+
+const modalStyles = StyleSheet.create({
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000, // Garante que o modal fique por cima
+  },
+  container: {
+    backgroundColor: COLORS.white,
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    maxWidth: '80%',
+  },
+  message: {
+    fontSize: 18,
+    marginBottom: 20,
+    textAlign: 'center',
+    color: COLORS.grayDark,
+  },
+  button: {
+    backgroundColor: COLORS.yellowDark,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: COLORS.white,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 });
