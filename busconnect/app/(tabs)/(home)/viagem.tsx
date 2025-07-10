@@ -1,7 +1,7 @@
 import { Alert, StyleSheet } from 'react-native';
 import { COLORS } from '../../../constants/colors';
 import { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, FlatList } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import CalendarViagem from '../../../components/Viagem/CalendarViagem';
 import { BotaoViagem } from '../../../components/Viagem/BotaoViagem';
@@ -287,27 +287,38 @@ export default function ViagemScreen() {
       )}
 
       {viagensDoDia.length > 0 && (
-        <TouchableOpacity onPress={() => router.push("/visualizarViagem")}>
-          <Text style={styles.tituloLista}>Viagens em {selectedDate}:</Text>
-          <ScrollView style={styles.listaContainer}>
-            {viagensDoDia.map((viagem) => (
-              <View key={viagem.id} style={styles.itemLista}>
+        <View style={styles.listaWrapper}>
+          <FlatList
+            data={viagensDoDia}
+            keyExtractor={(item) => item.id!}
+            style={styles.listaContainer}
+            contentContainerStyle={styles.listaContent}
+            ListHeaderComponent={
+              <Text style={styles.tituloLista}>Viagens em {selectedDate}:</Text>
+            }
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.itemLista}
+                activeOpacity={0.7}
+                onPress={() => router.push("/visualizarViagem")}
+                delayPressIn={100}
+              >
                 <View style={{ flex: 1 }}>
                   <Text style={styles.textoItem}>
                     <Text style={textStyles.bold}>Rota: </Text>
-                    {viagem.rotaData ? `${viagem.rotaData.origem} - ${viagem.rotaData.destino}` : 'Carregando...'}
+                    {item.rotaData ? `${item.rotaData.origem} - ${item.rotaData.destino}` : 'Carregando...'}
                   </Text>
                   <Text style={styles.textoItem}>
                     <Text style={textStyles.bold}>Motorista: </Text>
-                    {viagem.motoristaData?.name || 'Carregando...'}
+                    {item.motoristaData?.name || 'Carregando...'}
                   </Text>
                   <Text style={styles.textoItem}>
                     <Text style={textStyles.bold}>Horário: </Text>
-                    {viagem.horario || 'Não especificado'}
+                    {item.horario || 'Não especificado'}
                   </Text>
                   <Text style={[styles.textoItem, { marginBottom: 0 }]}>
                     <Text style={textStyles.bold}>Status: </Text>
-                    {viagem.status || 'Aberto'}
+                    {item.status || 'Aberto'}
                   </Text>
                 </View>
 
@@ -315,23 +326,24 @@ export default function ViagemScreen() {
                   <BotaoViagem 
                     tipo="editar" 
                     tamanho={40} 
-                    onPress={() => iniciarEdicao(viagem)} 
+                    onPress={() => iniciarEdicao(item)} 
                     disabled={loading}
                   />
                   <BotaoViagem 
                     tipo="excluir" 
                     tamanho={40}
                     onPress={() => {
-                      setViagemParaExcluir(viagem);
+                      setViagemParaExcluir(item);
                       setModalVisivel(true);
                     }}
                     disabled={loading}
                   />
                 </View>
-              </View>
-            ))}
-          </ScrollView>
-        </TouchableOpacity>
+              </TouchableOpacity>
+            )}
+            ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+          />
+        </View>
       )}
 
       <ModalConfirmacao
@@ -419,16 +431,6 @@ export const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 8,
   },
-  itemLista: {
-    backgroundColor: COLORS.blueDark,
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 10,
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
   botoesContainer: {
     flexDirection: 'row',
     gap: 10,
@@ -443,7 +445,25 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 20,
   },
+
+  listaWrapper: {
+    flex: 1,
+    width: '100%',
+    marginTop: 10,
+  },
   listaContainer: {
-  maxHeight: 300,
+    width: '100%',
+  },
+  listaContent: {
+    paddingBottom: 30,
+  },
+  itemLista: {
+    backgroundColor: COLORS.blueDark,
+    padding: 16,
+    borderRadius: 8,
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
 });
