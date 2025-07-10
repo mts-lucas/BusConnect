@@ -140,6 +140,7 @@ export default function ViagemScreen() {
       try {
         setLoading(true);
         await deleteDoc(doc(db, 'viagens', viagemParaExcluir.id));
+        Alert.alert("Sucesso", "Viagem deleda com sucesso!");
         await carregarViagens();
         setModalVisivel(false);
         setViagemParaExcluir(null);
@@ -191,6 +192,7 @@ export default function ViagemScreen() {
         status: dadosEditados.status,
         rota: rotaRef
       });
+      Alert.alert("Sucesso", "Viagem editada com sucesso!");
       
       await carregarViagens();
       setModalEdicaoVisivel(false);
