@@ -10,8 +10,10 @@ export interface StudentUserData {
   horarioAula: string;
   fotoUrl: string;
   createdAt: Timestamp;
+  role?: string; // Adicionado para consistência, se usado no Firestore
 }
 
 export interface StudentProfileFormProps {
   initialData: StudentUserData;
+  userUid: string;
 }

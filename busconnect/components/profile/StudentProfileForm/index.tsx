@@ -1,16 +1,38 @@
+// busconnect/components/profile/StudentProfileForm/index.tsx
 import React, { useState, useRef } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import * as ImagePicker from 'expo-image-picker';
-import { styles } from './styles';
 import { StudentUserData, StudentProfileFormProps } from './types';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp, getFirestore, doc, updateDoc } from 'firebase/firestore';
+import { app } from '../../../firebaseConfig';
+import { styles, modalStyles } from './styles';
 
-export const StudentProfileForm: React.FC<StudentProfileFormProps> = ({ initialData }) => {
+const db = getFirestore(app);
+
+const CustomModalStudent = ({ message, onClose }: { message: string | null; onClose: () => void }) => {
+  if (!message) return null;
+
+  return (
+    <View style={modalStyles.overlay}>
+      <View style={modalStyles.container}>
+        <Text style={modalStyles.message}>{message}</Text>
+        <TouchableOpacity onPress={onClose} style={modalStyles.button}>
+          <Text style={modalStyles.buttonText}>OK</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
+
+export const StudentProfileForm: React.FC<StudentProfileFormProps> = ({ 
+  initialData, 
+  userUid 
+}) => {
   const [studentUserData, setStudentUserData] = useState<StudentUserData>(initialData);
   const [originalData] = useState<StudentUserData>(initialData);
-  const [avatar, setAvatar] = useState(initialData.fotoUrl);
-
+  const [avatar, setAvatar] = useState<string>(initialData.fotoUrl);
+  const [modalMessage, setModalMessage] = useState<string | null>(null);
   const pickerRef = useRef<Picker<string>>(null);
 
   const handleChange = (field: keyof StudentUserData, value: string) => {
@@ -19,7 +41,7 @@ export const StudentProfileForm: React.FC<StudentProfileFormProps> = ({ initialD
 
   const handleUpdatePhoto = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [1, 1],
       quality: 1,
@@ -30,38 +52,59 @@ export const StudentProfileForm: React.FC<StudentProfileFormProps> = ({ initialD
     }
   };
 
-  const hasChanges = JSON.stringify(studentUserData) !== JSON.stringify(originalData) || avatar !== initialData.fotoUrl;
+  const hasChanges = 
+    JSON.stringify(studentUserData) !== JSON.stringify(originalData) || 
+    avatar !== initialData.fotoUrl;
 
-  const handleSubmit = () => {
-    alert('Dados atualizados com sucesso!');
-    setStudentUserData({ ...studentUserData });
+  const handleSubmit = async () => {
+    if (!userUid) {
+      setModalMessage("Erro: UID do usuário não disponível para atualização.");
+      return;
+    }
+
+    try {
+      const userDocRef = doc(db, "users", userUid);
+      const dataToUpdate = {
+        name: studentUserData.name,
+        email: studentUserData.email,
+        phone: studentUserData.phone,
+        registration: studentUserData.registration,
+        institution: studentUserData.institution,
+        local: studentUserData.local,
+        horarioAula: studentUserData.horarioAula,
+        fotoUrl: avatar,
+      };
+
+      await updateDoc(userDocRef, dataToUpdate);
+      setModalMessage('Dados atualizados com sucesso!');
+    } catch (error) {
+      console.error("Erro ao atualizar dados do estudante:", error);
+      setModalMessage("Erro ao atualizar dados. Tente novamente.");
+    }
   };
-  const { createdAt } = initialData;
 
   const formatCreationDate = (timestamp: Timestamp) => {
     if (!timestamp) return 'Data não disponível';
-      
-     const date = timestamp.toDate();
-     return date.toLocaleDateString('pt-BR', {
+
+    const date = timestamp instanceof Timestamp ? timestamp.toDate() : new Date(timestamp);
+    return date.toLocaleDateString('pt-BR', {
       day: '2-digit',
-      month: '2-digit',  
+      month: '2-digit',
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
-      });
-    };
+    });
+  };
+
+  const handleCloseModal = () => {
+    setModalMessage(null);
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.avatarContainer}>
-        <Image 
-          source={{ uri: avatar }} 
-          style={styles.avatar} 
-        />
-        <TouchableOpacity 
-          style={styles.changePhotoButton}
-          onPress={handleUpdatePhoto}
-        >
+        <Image source={{ uri: avatar }} style={styles.avatar} />
+        <TouchableOpacity style={styles.changePhotoButton} onPress={handleUpdatePhoto}>
           <Text style={styles.changePhotoText}>Alterar Foto</Text>
         </TouchableOpacity>
       </View>
@@ -157,11 +200,14 @@ export const StudentProfileForm: React.FC<StudentProfileFormProps> = ({ initialD
           <Text style={styles.buttonText}>Atualizar Dados</Text>
         </TouchableOpacity>
       </View>
+
       <View style={styles.creationInfoContainer}>
-         <Text style={styles.creationInfoText}>
-           Perfil criado em: {formatCreationDate(createdAt)}
-         </Text>
-       </View>
+        <Text style={styles.creationInfoText}>
+          Perfil criado em: {formatCreationDate(initialData.createdAt)}
+        </Text>
+      </View>
+
+      <CustomModalStudent message={modalMessage} onClose={handleCloseModal} />
     </View>
   );
 };
