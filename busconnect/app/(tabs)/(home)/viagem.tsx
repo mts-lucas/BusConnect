@@ -1,7 +1,7 @@
 import { Alert, StyleSheet } from 'react-native';
 import { COLORS } from '../../../constants/colors';
 import { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import CalendarViagem from '../../../components/Viagem/CalendarViagem';
 import { BotaoViagem } from '../../../components/Viagem/BotaoViagem';
@@ -13,13 +13,14 @@ import { collection, addDoc, getDocs, doc, deleteDoc, updateDoc, query, where, g
 import { db } from '../../../firebaseConfig';
 import { useAuth } from '../../../context/AuthContext';
 import { DriverUserData } from '../../../components/profile/DriverProfileForm/types';
+import { DocumentReference } from "firebase/firestore";
 
 export default function ViagemScreen() {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [showForm, setShowForm] = useState(false);
   const [rotaSelecionada, setRotaSelecionada] = useState<Rota | null>(null);
   const [horario, setHorario] = useState('');
-  const [viagens, setViagens] = useState<Viagem[]>([]);
+  const [viagens, setViagens] = useState<(Viagem & {rotaData?: Rota; motoristaData?: DriverUserData})[]>([]);
   const [rotas, setRotas] = useState<Rota[]>([]);
   const [modalVisivel, setModalVisivel] = useState(false);
   const [viagemParaExcluir, setViagemParaExcluir] = useState<Viagem | null>(null);
@@ -27,8 +28,8 @@ export default function ViagemScreen() {
   const [viagemParaEditar, setViagemParaEditar] = useState<Viagem | null>(null);
   const [loading, setLoading] = useState(false);
   
-
   const router = useRouter();
+  const { user } = useAuth();
 
   // Carrega rotas do Firestore
   useEffect(() => {
@@ -51,16 +52,31 @@ export default function ViagemScreen() {
     carregarRotas();
   }, []);
 
-  // Carrega viagens do Firestore
+  // Carrega viagens do Firestore com dados relacionados
   const carregarViagens = async () => {
     try {
       setLoading(true);
       const q = query(collection(db, 'viagens'), where('data', '==', selectedDate));
       const querySnapshot = await getDocs(q);
-      const viagensData = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Viagem[];
+      
+      const viagensData = await Promise.all(
+        querySnapshot.docs.map(async (doc) => {
+          const data = doc.data();
+          
+          const [rotaSnap, motoristaSnap] = await Promise.all([
+            getDoc(data.rota as DocumentReference),
+            getDoc(data.motorista as DocumentReference)
+          ]);
+          
+          return {
+            id: doc.id,
+            ...data,
+            rotaData: rotaSnap.exists() ? {id: rotaSnap.id, ...rotaSnap.data()} as Rota : null,
+            motoristaData: motoristaSnap.exists() ? motoristaSnap.data() as DriverUserData : null
+          } as Viagem & {rotaData?: Rota; motoristaData?: DriverUserData};
+        })
+      );
+      
       setViagens(viagensData);
     } catch (error) {
       console.error("Erro ao carregar viagens:", error);
@@ -78,44 +94,39 @@ export default function ViagemScreen() {
     setShowForm(false);
   };
 
-const { user } = useAuth();
-
-const criarViagem = async () => {
-  if (!rotaSelecionada || !user) return;
-
-  try {
-    setLoading(true);
-    
-    // Busca os dados completos do motorista
-    const motoristaDoc = await getDoc(doc(db, 'users', user.uid));
-    if (!motoristaDoc.exists()) {
-      throw new Error("Perfil do motorista não encontrado");
+  const criarViagem = async () => {
+    if (!rotaSelecionada || !rotaSelecionada.id || !user?.uid) {
+      Alert.alert("Erro", "Selecione uma rota válida");
+      return;
     }
 
-    const motoristaData = motoristaDoc.data();
-    const motorista: DriverUserData = {
-      nome: motoristaData.name || user.displayName || 'Motorista',
-      email: motoristaData.email || '',
-      phone: motoristaData.phone,
-      licenseNumber: motoristaData.licenseNumber,
-      vehiclePlate: motoristaData.vehiclePlate,
-      fotoUrl: motoristaData.fotoUrl || user.photoURL,
-      createdAt: motoristaData.createdAt,
-    };
+    try {
+      setLoading(true);
+      
+      const rotaRef = doc(db, 'rotas', rotaSelecionada.id);
+      const motoristaRef = doc(db, 'users', user.uid);
 
-    const novaViagem: Omit<Viagem, 'id'> = {
-      data: selectedDate,
-      rota: rotaSelecionada,
-      horario,
-      status: 'Aberto',
-      motorista,
-    };
+      const novaViagem: Omit<Viagem, 'id'> = {
+        data: selectedDate,
+        rota: rotaRef,
+        horario,
+        status: 'Aberto',
+        motorista: motoristaRef
+      };
 
-    await addDoc(collection(db, 'viagens'), novaViagem);
-    await carregarViagens();
-    setShowForm(false);
-    setRotaSelecionada(null);
-    setHorario('');
+      await addDoc(collection(db, 'viagens'), novaViagem);
+      Alert.alert("Sucesso", "Viagem criada com sucesso!");
+      
+      // Fecha o formulário/modal
+      setShowForm(false);
+      
+      // Limpa os campos
+      setRotaSelecionada(null);
+      setHorario('');
+      
+      // Atualiza a lista de viagens
+      await carregarViagens();
+      
     } catch (error) {
       console.error("Erro ao criar viagem:", error);
       Alert.alert("Erro", "Não foi possível criar a viagem");
@@ -140,24 +151,55 @@ const criarViagem = async () => {
     }
   };
 
-  const iniciarEdicao = (viagem: Viagem) => {
-    setViagemParaEditar(viagem);
-    setModalEdicaoVisivel(true);
+  const iniciarEdicao = async (viagem: Viagem) => {
+    try {
+      setLoading(true);
+      
+      // Carrega os dados da rota a partir da referência
+      const rotaSnap = await getDoc(viagem.rota as DocumentReference);
+      const rotaData = rotaSnap.exists() ? {id: rotaSnap.id, ...rotaSnap.data()} as Rota : null;
+      
+      if (!rotaData) {
+        throw new Error("Rota não encontrada");
+      }
+
+      setViagemParaEditar({
+        ...viagem,
+        rota: rotaData
+      });
+      setModalEdicaoVisivel(true);
+    } catch (error) {
+      console.error("Erro ao carregar dados da rota:", error);
+      Alert.alert("Erro", "Não foi possível carregar os dados da rota");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const confirmarEdicao = async (dadosEditados: { rota: Rota; horario: string; status: string }) => {
-    if (viagemParaEditar?.id) {
-      try {
-        setLoading(true);
-        await updateDoc(doc(db, 'viagens', viagemParaEditar.id), dadosEditados);
-        await carregarViagens();
-        setModalEdicaoVisivel(false);
-        setViagemParaEditar(null);
-      } catch (error) {
-        console.error("Erro ao editar viagem:", error);
-      } finally {
-        setLoading(false);
-      }
+    if (!viagemParaEditar?.id || !dadosEditados.rota.id) {
+      Alert.alert("Erro", "Dados inválidos para edição");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const rotaRef = doc(db, 'rotas', dadosEditados.rota.id);
+      
+      await updateDoc(doc(db, 'viagens', viagemParaEditar.id), {
+        horario: dadosEditados.horario,
+        status: dadosEditados.status,
+        rota: rotaRef
+      });
+      
+      await carregarViagens();
+      setModalEdicaoVisivel(false);
+      setViagemParaEditar(null);
+    } catch (error) {
+      console.error("Erro ao editar viagem:", error);
+      Alert.alert("Erro", "Não foi possível editar a viagem");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -242,49 +284,51 @@ const criarViagem = async () => {
         </View>
       )}
 
-      {loading && viagensDoDia.length === 0 && (
-        <Text style={styles.carregando}>Carregando viagens...</Text>
-      )}
-
       {viagensDoDia.length > 0 && (
         <TouchableOpacity onPress={() => router.push("/visualizarViagem")}>
           <Text style={styles.tituloLista}>Viagens em {selectedDate}:</Text>
-          {viagensDoDia.map((viagem) => (
-            <View key={viagem.id} style={styles.itemLista}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.textoItem}>
-                  <Text style={textStyles.bold}>Rota: </Text>
-                  {viagem.rota ? `${viagem.rota.origem} - ${viagem.rota.destino}` : 'Não especificada'}
-                </Text>
-                <Text style={styles.textoItem}>
-                  <Text style={textStyles.bold}>Horário: </Text>
-                  {viagem.horario || 'Não especificado'}
-                </Text>
-                <Text style={[styles.textoItem, { marginBottom: 0 }]}>
-                  <Text style={textStyles.bold}>Status: </Text>
-                  {viagem.status || 'Aberto'}
-                </Text>
-              </View>
+          <ScrollView style={styles.listaContainer}>
+            {viagensDoDia.map((viagem) => (
+              <View key={viagem.id} style={styles.itemLista}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.textoItem}>
+                    <Text style={textStyles.bold}>Rota: </Text>
+                    {viagem.rotaData ? `${viagem.rotaData.origem} - ${viagem.rotaData.destino}` : 'Carregando...'}
+                  </Text>
+                  <Text style={styles.textoItem}>
+                    <Text style={textStyles.bold}>Motorista: </Text>
+                    {viagem.motoristaData?.name || 'Carregando...'}
+                  </Text>
+                  <Text style={styles.textoItem}>
+                    <Text style={textStyles.bold}>Horário: </Text>
+                    {viagem.horario || 'Não especificado'}
+                  </Text>
+                  <Text style={[styles.textoItem, { marginBottom: 0 }]}>
+                    <Text style={textStyles.bold}>Status: </Text>
+                    {viagem.status || 'Aberto'}
+                  </Text>
+                </View>
 
-              <View style={styles.botoesContainer}>
-                <BotaoViagem 
-                  tipo="editar" 
-                  tamanho={40} 
-                  onPress={() => iniciarEdicao(viagem)} 
-                  disabled={loading}
-                />
-                <BotaoViagem 
-                  tipo="excluir" 
-                  tamanho={40}
-                  onPress={() => {
-                    setViagemParaExcluir(viagem);
-                    setModalVisivel(true);
-                  }}
-                  disabled={loading}
-                />
+                <View style={styles.botoesContainer}>
+                  <BotaoViagem 
+                    tipo="editar" 
+                    tamanho={40} 
+                    onPress={() => iniciarEdicao(viagem)} 
+                    disabled={loading}
+                  />
+                  <BotaoViagem 
+                    tipo="excluir" 
+                    tamanho={40}
+                    onPress={() => {
+                      setViagemParaExcluir(viagem);
+                      setModalVisivel(true);
+                    }}
+                    disabled={loading}
+                  />
+                </View>
               </View>
-            </View>
-          ))}
+            ))}
+          </ScrollView>
         </TouchableOpacity>
       )}
 
@@ -300,7 +344,7 @@ const criarViagem = async () => {
         <ModalEdicao
           visivel={modalEdicaoVisivel}
           viagemInicial={{
-            rota: viagemParaEditar.rota,
+            rota: viagemParaEditar.rota as Rota,
             horario: viagemParaEditar.horario,
             status: viagemParaEditar.status
           }}
@@ -396,5 +440,8 @@ export const styles = StyleSheet.create({
     color: COLORS.white,
     textAlign: 'center',
     marginTop: 20,
+  },
+  listaContainer: {
+  maxHeight: 300,
   },
 });
