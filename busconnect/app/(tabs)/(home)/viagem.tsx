@@ -1,6 +1,6 @@
-import { StyleSheet } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
 import { COLORS } from '../../../constants/colors';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import CalendarViagem from '../../../components/Viagem/CalendarViagem';
@@ -8,51 +8,135 @@ import { BotaoViagem } from '../../../components/Viagem/BotaoViagem';
 import { ModalConfirmacao } from '../../../components/Viagem/ModalConfirmacao';
 import { ModalEdicao } from '../../../components/Viagem/ModalEdicao';
 import { useRouter } from 'expo-router';
-// import { Viagem } from '../../../components/Viagem/types';
-
-type Viagem = {
-  data: string;
-  rota: string;
-  horario: string;
-  status: string;
-};
+import { Viagem, Rota } from '../../../components/Viagem/types';
+import { collection, addDoc, getDocs, doc, deleteDoc, updateDoc, query, where, getDoc } from 'firebase/firestore';
+import { db } from '../../../firebaseConfig';
+import { useAuth } from '../../../context/AuthContext';
+import { DriverUserData } from '../../../components/profile/DriverProfileForm/types';
 
 export default function ViagemScreen() {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [showForm, setShowForm] = useState(false);
-  const [rota, setRota] = useState('');
+  const [rotaSelecionada, setRotaSelecionada] = useState<Rota | null>(null);
   const [horario, setHorario] = useState('');
   const [viagens, setViagens] = useState<Viagem[]>([]);
+  const [rotas, setRotas] = useState<Rota[]>([]);
   const [modalVisivel, setModalVisivel] = useState(false);
   const [viagemParaExcluir, setViagemParaExcluir] = useState<Viagem | null>(null);
   const [modalEdicaoVisivel, setModalEdicaoVisivel] = useState(false);
   const [viagemParaEditar, setViagemParaEditar] = useState<Viagem | null>(null);
+  const [loading, setLoading] = useState(false);
+  
 
   const router = useRouter();
+
+  // Carrega rotas do Firestore
+  useEffect(() => {
+    const carregarRotas = async () => {
+      try {
+        setLoading(true);
+        const querySnapshot = await getDocs(collection(db, 'rotas'));
+        const rotasData = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Rota[];
+        setRotas(rotasData);
+      } catch (error) {
+        console.error("Erro ao carregar rotas:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    carregarRotas();
+  }, []);
+
+  // Carrega viagens do Firestore
+  const carregarViagens = async () => {
+    try {
+      setLoading(true);
+      const q = query(collection(db, 'viagens'), where('data', '==', selectedDate));
+      const querySnapshot = await getDocs(q);
+      const viagensData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Viagem[];
+      setViagens(viagensData);
+    } catch (error) {
+      console.error("Erro ao carregar viagens:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    carregarViagens();
+  }, [selectedDate]);
 
   const handleDayPress = (day: { dateString: string }) => {
     setSelectedDate(day.dateString);
     setShowForm(false);
   };
 
-  const criarViagem = () => {
-    const novaViagem: Viagem = {
-      data: selectedDate,
-      rota,
-      horario,
-      status: 'Aberto'
+const { user } = useAuth();
+
+const criarViagem = async () => {
+  if (!rotaSelecionada || !user) return;
+
+  try {
+    setLoading(true);
+    
+    // Busca os dados completos do motorista
+    const motoristaDoc = await getDoc(doc(db, 'users', user.uid));
+    if (!motoristaDoc.exists()) {
+      throw new Error("Perfil do motorista não encontrado");
+    }
+
+    const motoristaData = motoristaDoc.data();
+    const motorista: DriverUserData = {
+      nome: motoristaData.name || user.displayName || 'Motorista',
+      email: motoristaData.email || '',
+      phone: motoristaData.phone,
+      licenseNumber: motoristaData.licenseNumber,
+      vehiclePlate: motoristaData.vehiclePlate,
+      fotoUrl: motoristaData.fotoUrl || user.photoURL,
+      createdAt: motoristaData.createdAt,
     };
-    setViagens([...viagens, novaViagem]);
+
+    const novaViagem: Omit<Viagem, 'id'> = {
+      data: selectedDate,
+      rota: rotaSelecionada,
+      horario,
+      status: 'Aberto',
+      motorista,
+    };
+
+    await addDoc(collection(db, 'viagens'), novaViagem);
+    await carregarViagens();
     setShowForm(false);
-    setRota('');
+    setRotaSelecionada(null);
     setHorario('');
+    } catch (error) {
+      console.error("Erro ao criar viagem:", error);
+      Alert.alert("Erro", "Não foi possível criar a viagem");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const confirmarExclusao = () => {
-    if (viagemParaExcluir) {
-      setViagens(viagens.filter(v => v !== viagemParaExcluir));
-      setModalVisivel(false);
-      setViagemParaExcluir(null);
+  const confirmarExclusao = async () => {
+    if (viagemParaExcluir?.id) {
+      try {
+        setLoading(true);
+        await deleteDoc(doc(db, 'viagens', viagemParaExcluir.id));
+        await carregarViagens();
+        setModalVisivel(false);
+        setViagemParaExcluir(null);
+      } catch (error) {
+        console.error("Erro ao excluir viagem:", error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -61,14 +145,19 @@ export default function ViagemScreen() {
     setModalEdicaoVisivel(true);
   };
 
-  const confirmarEdicao = (dadosEditados: { rota: string; horario: string; status: string }) => {
-    if (viagemParaEditar) {
-      const viagensAtualizadas = viagens.map(v =>
-        v === viagemParaEditar ? { ...v, ...dadosEditados } : v
-      );
-      setViagens(viagensAtualizadas);
-      setModalEdicaoVisivel(false);
-      setViagemParaEditar(null);
+  const confirmarEdicao = async (dadosEditados: { rota: Rota; horario: string; status: string }) => {
+    if (viagemParaEditar?.id) {
+      try {
+        setLoading(true);
+        await updateDoc(doc(db, 'viagens', viagemParaEditar.id), dadosEditados);
+        await carregarViagens();
+        setModalEdicaoVisivel(false);
+        setViagemParaEditar(null);
+      } catch (error) {
+        console.error("Erro ao editar viagem:", error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -100,8 +189,11 @@ export default function ViagemScreen() {
         <TouchableOpacity
           style={styles.botao}
           onPress={() => setShowForm(true)}
+          disabled={loading}
         >
-          <Text style={styles.textoBotao}>Criar Viagem</Text>
+          <Text style={styles.textoBotao}>
+            {loading ? 'Carregando...' : 'Criar Viagem'}
+          </Text>
         </TouchableOpacity>
       ) : (
         <View style={styles.formContainer}>
@@ -109,13 +201,21 @@ export default function ViagemScreen() {
 
           <Text style={styles.label}>Rota:</Text>
           <Picker
-            selectedValue={rota}
-            onValueChange={(itemValue) => setRota(itemValue)}
+            selectedValue={rotaSelecionada?.id || ''}
+            onValueChange={(itemValue) => {
+              const rota = rotas.find(r => r.id === itemValue);
+              setRotaSelecionada(rota || null);
+            }}
             style={styles.picker}
           >
             <Picker.Item label="Selecione uma rota" value="" />
-            <Picker.Item label="Jucurutu - Caicó" value="Jucurutu - Caicó" />
-            <Picker.Item label="Jucurutu - Assu" value="Jucurutu - Assu" />
+            {rotas.map(rota => (
+              <Picker.Item 
+                key={rota.id} 
+                label={`${rota.origem} - ${rota.destino}`} 
+                value={rota.id} 
+              />
+            ))}
           </Picker>
 
           <Text style={styles.label}>Horário:</Text>
@@ -131,24 +231,30 @@ export default function ViagemScreen() {
           </Picker>
 
           <TouchableOpacity
-            style={styles.botao}
+            style={[styles.botao, (!rotaSelecionada || !horario || loading) && styles.botaoDisabled]}
             onPress={criarViagem}
-            disabled={!rota || !horario}
+            disabled={!rotaSelecionada || !horario || loading}
           >
-            <Text style={styles.textoBotao}>Confirmar Viagem</Text>
+            <Text style={styles.textoBotao}>
+              {loading ? 'Salvando...' : 'Confirmar Viagem'}
+            </Text>
           </TouchableOpacity>
         </View>
       )}
 
+      {loading && viagensDoDia.length === 0 && (
+        <Text style={styles.carregando}>Carregando viagens...</Text>
+      )}
+
       {viagensDoDia.length > 0 && (
-        <TouchableOpacity onPress={()=>router.push("/visualizarViagem")}>
+        <TouchableOpacity onPress={() => router.push("/visualizarViagem")}>
           <Text style={styles.tituloLista}>Viagens em {selectedDate}:</Text>
-          {viagensDoDia.map((viagem, index) => (
-            <View key={index} style={styles.itemLista}>
+          {viagensDoDia.map((viagem) => (
+            <View key={viagem.id} style={styles.itemLista}>
               <View style={{ flex: 1 }}>
                 <Text style={styles.textoItem}>
                   <Text style={textStyles.bold}>Rota: </Text>
-                  {viagem.rota || 'Não especificada'}
+                  {viagem.rota ? `${viagem.rota.origem} - ${viagem.rota.destino}` : 'Não especificada'}
                 </Text>
                 <Text style={styles.textoItem}>
                   <Text style={textStyles.bold}>Horário: </Text>
@@ -165,6 +271,7 @@ export default function ViagemScreen() {
                   tipo="editar" 
                   tamanho={40} 
                   onPress={() => iniciarEdicao(viagem)} 
+                  disabled={loading}
                 />
                 <BotaoViagem 
                   tipo="excluir" 
@@ -173,6 +280,7 @@ export default function ViagemScreen() {
                     setViagemParaExcluir(viagem);
                     setModalVisivel(true);
                   }}
+                  disabled={loading}
                 />
               </View>
             </View>
@@ -185,6 +293,7 @@ export default function ViagemScreen() {
         onCancelar={() => setModalVisivel(false)}
         onConfirmar={confirmarExclusao}
         mensagem="Deseja mesmo excluir essa viagem?"
+        loading={loading}
       />
 
       {viagemParaEditar && (
@@ -195,6 +304,7 @@ export default function ViagemScreen() {
             horario: viagemParaEditar.horario,
             status: viagemParaEditar.status
           }}
+          rotas={rotas}
           onCancelar={() => setModalEdicaoVisivel(false)}
           onSalvar={confirmarEdicao}
           titulo="Editar Viagem"
@@ -203,7 +313,6 @@ export default function ViagemScreen() {
     </View>
   );
 }
-
 
 // Estilos
 export const textStyles = StyleSheet.create({
@@ -228,6 +337,10 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     marginTop: 20,
+  },
+  botaoDisabled: {
+    backgroundColor: COLORS.grayLight,
+    opacity: 0.6,
   },
   textoBotao: {
     color: COLORS.white,
@@ -259,8 +372,6 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginTop: 20,
     marginBottom: 8,
-    paddingLeft: 0,
-    marginLeft: 0,
   },
   itemLista: {
     backgroundColor: COLORS.blueDark,
@@ -271,7 +382,6 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    position: 'relative',
   },
   botoesContainer: {
     flexDirection: 'row',
@@ -281,5 +391,10 @@ export const styles = StyleSheet.create({
     color: COLORS.white,
     fontSize: 14,
     marginBottom: 4,
+  },
+  carregando: {
+    color: COLORS.white,
+    textAlign: 'center',
+    marginTop: 20,
   },
 });

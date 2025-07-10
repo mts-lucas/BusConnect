@@ -3,22 +3,22 @@ import { View, StyleSheet } from 'react-native';
 import { COLORS } from '../../../constants/colors';
 import CalendarViagem from '../../../components/Viagem/CalendarViagem';
 import { viagensMock } from '../../../mocks/presenca';
-import { Viagem } from '../../../components/Viagem/types';
+import { ViagemPresenca } from '../../../components/Viagem/types';
 import { ViagensList } from '../../../components/Viagem/ViagensList';
 import { ConfirmarPresencaModal } from '../../../components/Viagem/ConfirmarPresencaModal';
 
 export default function ConfirmarPresencaScreen() {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  const [selectedViagem, setSelectedViagem] = useState<Viagem | null>(null);
+  const [selectedViagem, setSelectedViagem] = useState<ViagemPresenca | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [horarioSaida, setHorarioSaida] = useState('');
-  const [viagens, setViagens] = useState<Viagem[]>(viagensMock);
+  const [viagens, setViagens] = useState<ViagemPresenca[]>(viagensMock);
 
   const handleDayPress = (day: { dateString: string }) => {
     setSelectedDate(day.dateString);
   };
 
-  const handleViagemPress = (viagem: Viagem) => {
+  const handleViagemPress = (viagem: ViagemPresenca) => {
     setSelectedViagem(viagem);
     setModalVisible(true);
     setHorarioSaida(viagem.presenca?.horarioSaida || '');
