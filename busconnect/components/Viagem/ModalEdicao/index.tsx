@@ -1,29 +1,32 @@
-import { Modal, View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { Modal, View, Text, TouchableOpacity } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { COLORS } from '../../../constants/colors';
 import { useState, useEffect } from 'react';
 import { styles } from './styles';
+import { Rota } from '../../../components/Viagem/types';
 
 type ModalEdicaoProps = {
   visivel: boolean;
   viagemInicial: {
-    rota: string;
+    rota: Rota;
     horario: string;
     status: string;
   };
+  rotas: Rota[];
   onCancelar: () => void;
-  onSalvar: (dados: { rota: string; horario: string; status: string }) => void;
+  onSalvar: (dados: { rota: Rota; horario: string; status: string }) => void;
   titulo?: string;
 };
 
 export function ModalEdicao({
   visivel,
   viagemInicial,
+  rotas,
   onCancelar,
   onSalvar,
   titulo = 'Editar Viagem',
 }: ModalEdicaoProps) {
-  const [rota, setRota] = useState(viagemInicial.rota);
+  const [rota, setRota] = useState<Rota>(viagemInicial.rota);
   const [horario, setHorario] = useState(viagemInicial.horario);
   const [status, setStatus] = useState(viagemInicial.status);
 
@@ -35,7 +38,7 @@ export function ModalEdicao({
 
   const handleSalvar = () => {
     if (!rota || !horario) {
-      return; // Validação básica
+      return;
     }
     onSalvar({ rota, horario, status });
   };
@@ -47,13 +50,25 @@ export function ModalEdicao({
           <Text style={styles.modalTitulo}>{titulo}</Text>
 
           <Text style={styles.label}>Rota:</Text>
-          <TextInput
-            style={styles.input}
-            value={rota}
-            onChangeText={setRota}
-            placeholder="Digite a rota..."
-            placeholderTextColor={COLORS.grayLight}
-          />
+          <View style={styles.pickerContainer}>
+            <Picker
+              selectedValue={rota.id}
+              onValueChange={(itemValue) => {
+                const rotaSelecionada = rotas.find(r => r.id === itemValue);
+                if (rotaSelecionada) setRota(rotaSelecionada);
+              }}
+              style={styles.picker}
+              dropdownIconColor={COLORS.grayDark}
+            >
+              {rotas.map(rota => (
+                <Picker.Item 
+                  key={rota.id} 
+                  label={`${rota.origem} - ${rota.destino}`} 
+                  value={rota.id} 
+                />
+              ))}
+            </Picker>
+          </View>
 
           <Text style={styles.label}>Horário:</Text>
           <View style={styles.pickerContainer}>
@@ -79,7 +94,9 @@ export function ModalEdicao({
               dropdownIconColor={COLORS.grayDark}
             >
               <Picker.Item label="Aberto" value="Aberto" />
-              <Picker.Item label="Fechado" value="Fechado" />
+              <Picker.Item label="Confirmado" value="Confirmado" />
+              <Picker.Item label="Cancelado" value="Cancelado" />
+              <Picker.Item label="Finalizado" value="Finalizado" />
             </Picker>
           </View>
 

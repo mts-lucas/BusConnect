@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { Viagem } from '../types';
+import { ViagemPresenca } from '../types';
 import { styles } from './styles';
 
 interface ViagemItemProps {
-  viagem: Viagem;
+  viagem: ViagemPresenca;
   onPress: () => void;
 }
 

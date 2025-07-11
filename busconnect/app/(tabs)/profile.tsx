@@ -7,10 +7,7 @@ import { DriverProfileForm } from '../../components/profile/DriverProfileForm'; 
 import { COLORS } from '../../constants/colors';
 import { useAuth } from '../../context/AuthContext'; // Importe o useAuth
 import { getFirestore, doc, getDoc } from "firebase/firestore"; // Importe Firestore
-import { app } from '../../firebaseConfig'; // Sua instância do Firebase App
-
-// Inicialize o Firestore
-const db = getFirestore(app);
+import { db } from '../../firebaseConfig';
 
 export default function ProfileScreen() {
   const router = useRouter(); // Adicione useRouter para redirecionamento

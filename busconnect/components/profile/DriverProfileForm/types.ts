@@ -1,7 +1,7 @@
 import { Timestamp } from "firebase/firestore";
 
 export interface DriverUserData {
-  nome: string;
+  name: string;
   email: string;
   phone: string;
   licenseNumber: string;
