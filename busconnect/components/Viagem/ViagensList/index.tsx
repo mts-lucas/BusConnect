@@ -1,13 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { COLORS } from '../../../constants/colors';
-import { Viagem } from '../types';
+import { ViagemPresenca } from '../types';
 import { ViagemItem } from '../ViagemItem';
 
 interface ViagensListProps {
-  viagens: Viagem[];
+  viagens: ViagemPresenca[];
   selectedDate: string;
-  onViagemPress: (viagem: Viagem) => void;
+  onViagemPress: (viagem: ViagemPresenca) => void;
 }
 
 export const ViagensList: React.FC<ViagensListProps> = ({ viagens, selectedDate, onViagemPress }) => {

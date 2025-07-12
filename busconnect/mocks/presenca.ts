@@ -1,6 +1,6 @@
-import { Viagem } from "../components/Viagem/types";
+import { ViagemPresenca } from "../components/Viagem/types";
 
-export const viagensMock: Viagem[] = [
+export const viagensMock: ViagemPresenca[] = [
   {
     id: 1,
     data: '2025-06-16',

@@ -1,12 +1,13 @@
 import { Modal, View, Text, TouchableOpacity } from 'react-native';
 import { styles } from './styles';
 
-type ModalConfirmacaoProps = {
+export interface ModalConfirmacaoProps {
   visivel: boolean;
   onCancelar: () => void;
   onConfirmar: () => void;
-  mensagem?: string;
-};
+  mensagem: string;
+  loading?: boolean;
+}
 
 export function ModalConfirmacao({
   visivel,

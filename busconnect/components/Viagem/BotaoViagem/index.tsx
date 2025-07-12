@@ -3,10 +3,11 @@ import { TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { styles } from './styles';
 
-interface BotaoViagemProps {
+export interface BotaoViagemProps {
   tipo: 'editar' | 'excluir';
+  tamanho: number;
   onPress: () => void;
-  tamanho?: number;
+  disabled?: boolean;
 }
 
 export const BotaoViagem: React.FC<BotaoViagemProps> = ({ 

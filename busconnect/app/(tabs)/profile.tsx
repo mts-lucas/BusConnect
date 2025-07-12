@@ -5,13 +5,10 @@ import { StudentProfileForm } from '../../components/profile/StudentProfileForm'
 import { DriverProfileForm } from '../../components/profile/DriverProfileForm';
 import { COLORS } from '../../constants/colors';
 import { useAuth } from '../../context/AuthContext';
-import { getFirestore, doc, getDoc, DocumentData } from "firebase/firestore"; // Importe DocumentData
-import { app } from '../../firebaseConfig';
+import { doc, getDoc, DocumentData } from "firebase/firestore"; 
+import { db } from '../../firebaseConfig'; //  Importe 'db' de firebaseConfig
 import { StudentUserData } from '../../components/profile/StudentProfileForm/types'; // Importe tipos específicos
 import { DriverUserData } from '../../components/profile/DriverProfileForm/types'; // Importe tipos específicos
-
-// Inicialize o Firestore
-const db = getFirestore(app);
 
 // Componente de Modal Personalizado para exibir mensagens
 // Tipagem explícita para as props
