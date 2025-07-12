@@ -8,8 +8,10 @@ export interface DriverUserData {
   vehiclePlate: string;
   fotoUrl: string;
   createdAt: Timestamp;
+  role?: string; // Adicionado para consistência, se usado no Firestore
 }
 
 export interface DriverProfileFormProps {
   initialData: DriverUserData;
+  userUid: string;
 }

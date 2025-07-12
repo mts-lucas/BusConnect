@@ -1,85 +1,130 @@
+// busconnect/components/profile/StudentProfileForm/styles.ts
 import { StyleSheet } from 'react-native';
 import { COLORS } from '../../../constants/colors';
 
 export const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    paddingTop: 16,
+    backgroundColor: COLORS.grayDark,
+    padding: 20,
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   avatarContainer: {
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 20,
   },
   avatar: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    borderWidth: 3,
-    borderColor: COLORS.yellowLight,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    borderWidth: 2,
+    borderColor: COLORS.yellowDark,
   },
   changePhotoButton: {
-    marginTop: 8,
+    marginTop: 10,
+    backgroundColor: COLORS.yellowDark,
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 20,
   },
   changePhotoText: {
-    color: COLORS.yellowLight,
+    color: COLORS.white,
     fontWeight: 'bold',
   },
   fieldContainer: {
-    marginBottom: 16,
+    marginBottom: 15,
   },
   fieldLabel: {
-    color: COLORS.white,
-    marginBottom: 8,
+    fontSize: 16,
     fontWeight: 'bold',
+    marginBottom: 5,
+    color: COLORS.white,
   },
   input: {
-    height: 50,
-    borderWidth: 1,
-    borderColor: COLORS.grayLight,
-    borderRadius: 8,
-    paddingHorizontal: 16,
     backgroundColor: COLORS.white,
-    color: COLORS.black,
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    color: COLORS.grayDark,
   },
   pickerContainer: {
-    borderWidth: 1,
-    borderColor: COLORS.grayLight,
+    backgroundColor: COLORS.grayLight,
     borderRadius: 8,
     overflow: 'hidden',
   },
   picker: {
     height: 50,
-    backgroundColor: COLORS.white,
-    color: COLORS.black,
+    width: '100%',
+    color: COLORS.grayDark,
   },
   buttonContainer: {
-    marginTop: 24,
-    marginBottom: 40, // Espaço extra para o bottom tab
+    marginTop: 20,
   },
   button: {
-    height: 50,
+    padding: 15,
     borderRadius: 8,
-    justifyContent: 'center',
     alignItems: 'center',
   },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
+  buttonEnabled: {
+    backgroundColor: COLORS.yellowDark,
   },
   buttonDisabled: {
     backgroundColor: COLORS.grayLight,
   },
-  buttonEnabled: {
-    backgroundColor: COLORS.yellowLight,
+  buttonText: {
+    color: COLORS.white,
+    fontSize: 18,
+    fontWeight: 'bold',
   },
-    creationInfoContainer: {
-  marginTop: 20,
-  paddingVertical: 10,
-  borderTopColor: '#e0e0e0',
-  alignItems: 'center',
-},
-creationInfoText: {
-  fontSize: 14,
-  color: '#666',
-},
+  creationInfoContainer: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  creationInfoText: {
+    color: COLORS.white,
+    fontSize: 12,
+    fontStyle: 'italic',
+  },
+});
+
+export const modalStyles = StyleSheet.create({
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  container: {
+    backgroundColor: COLORS.white,
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    maxWidth: '80%',
+  },
+  message: {
+    fontSize: 18,
+    marginBottom: 20,
+    textAlign: 'center',
+    color: COLORS.grayDark,
+  },
+  button: {
+    backgroundColor: COLORS.yellowDark,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: COLORS.white,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 });
