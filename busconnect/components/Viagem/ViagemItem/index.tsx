@@ -1,19 +1,21 @@
+// busconnect/components/Viagem/ViagemItem/index.tsx
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { ViagemPresenca } from '../types';
+import { Viagem, Rota, PresencaAluno } from '../types'; // Importar os novos tipos
 import { styles } from './styles';
 
 interface ViagemItemProps {
-  viagem: ViagemPresenca;
+  // Ajuste o tipo para receber a Viagem completa
+  viagem: (Viagem & { rotaData?: Rota, minhaPresenca?: PresencaAluno }); 
   onPress: () => void;
 }
 
 export const ViagemItem: React.FC<ViagemItemProps> = ({ viagem, onPress }) => {
 
-  const getTipoViagem = () => {
-    if (!viagem.presenca) return 'Aguardando confirmação';
+  const getTipoPresenca = () => { // Renomeado para clareza
+    if (!viagem.minhaPresenca) return 'Aguardando confirmação';
     
-    const { ida, volta } = viagem.presenca;
+    const { ida, volta } = viagem.minhaPresenca; // Usar minhaPresenca
     if (ida && volta) return 'Ida e Volta';
     if (ida) return 'Ida';
     if (volta) return 'Volta';
@@ -25,26 +27,26 @@ export const ViagemItem: React.FC<ViagemItemProps> = ({ viagem, onPress }) => {
     <TouchableOpacity
       style={[
         styles.itemLista,
-        viagem.presenca && styles.itemConfirmado
+        viagem.minhaPresenca && styles.itemConfirmado // Usar minhaPresenca
       ]}
       onPress={onPress}
     >
       <Text style={styles.textoItem}>
         <Text style={styles.textoNegrito}>Rota: </Text>
-        {viagem.rota.origem} - {viagem.rota.destino}
+        {viagem.rotaData ? `${viagem.rotaData.origem} - ${viagem.rotaData.destino}` : 'Carregando Rota...'} {/* Usar rotaData */}
       </Text>
       <Text style={styles.textoItem}>
-        <Text style={styles.textoNegrito}>Turno: </Text>
-        {viagem.turno}
+        <Text style={styles.textoNegrito}>Horário: </Text> {/* Mudei de Turno para Horário, conforme Viagem.horario */}
+        {viagem.horario}
       </Text>
       <Text style={styles.textoItem}>
         <Text style={styles.textoNegrito}>Situação: </Text>
-        {getTipoViagem()}
+        {getTipoPresenca()}
       </Text>
-      {viagem.presenca?.horarioSaida && (
+      {viagem.minhaPresenca?.horarioSaida && ( // Usar minhaPresenca
         <Text style={styles.textoItem}>
           <Text style={styles.textoNegrito}>Saída: </Text>
-          {viagem.presenca.horarioSaida}
+          {viagem.minhaPresenca.horarioSaida}
         </Text>
       )}
     </TouchableOpacity>
