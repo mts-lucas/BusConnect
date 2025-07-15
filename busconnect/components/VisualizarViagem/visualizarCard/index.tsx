@@ -15,6 +15,7 @@ interface Aluno {
   instituicao: string;
   matricula: string;
   volta: boolean;
+  horarioSaida?: string | null; // ADIÇÃO AQUI: Horário de Saída (opcional)
 }
 
 interface ViagemCardProps {
@@ -92,6 +93,14 @@ export default function ViagemCard({ alunos, diaDaViagem, motorista, rota }: Via
                       {aluno.volta ? 'Ida e volta' : 'Somente ida'}
                     </Text>
                   </View>
+
+                  {/* ADIÇÃO AQUI: Exibir Horário de Saída se existir e se for volta */}
+                  {aluno.volta && aluno.horarioSaida && (
+                    <View style={styles.detailRow}>
+                      <Ionicons name="time" size={16} color={COLORS.white} />
+                      <Text style={styles.detalhe}>Saída: {aluno.horarioSaida}</Text>
+                    </View>
+                  )}
                 </View>
               </View>
             ))}
