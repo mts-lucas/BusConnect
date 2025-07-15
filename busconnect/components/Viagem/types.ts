@@ -8,6 +8,9 @@ export interface PresencaAluno { // Renomeado para PresencaAluno para clareza
   volta: boolean;
   horarioSaida: string | null;
   timestampConfirmacao: Date; // Para registrar quando a presença foi adicionada/modificada
+  registration?: string; 
+  instituicao?: string;
+  fotoUrl: string;
 }
 
 export interface Rota {
