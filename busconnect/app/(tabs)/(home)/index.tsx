@@ -76,7 +76,7 @@ export default function HomeScreen() {
       <HomeCard
         title="Histórico de Viagens"
         description="Visualize suas viagens anteriores"
-        onPress={() => console.log('Histórico de motorista pressionado')}
+        onPress={() => router.push('/(tabs)/(home)/historico')}
         iconName="time"
       />
       <HomeCard
@@ -106,7 +106,7 @@ export default function HomeScreen() {
       <HomeCard
         title="Histórico de Viagens"
         description="Visualize suas viagens anteriores"
-        onPress={() => console.log('Histórico de aluno pressionado')}
+        onPress={() => router.push('/(tabs)/(home)/historico')}
         iconName="time"
       />
       <HomeCard
