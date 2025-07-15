@@ -9,7 +9,7 @@ import ViagemCard from '../../../../components/VisualizarViagem/visualizarCard';
 import { COLORS } from '../../../../constants/colors';
 
 export default function ViagemDetalhesScreen() {
-  const { id } = useLocalSearchParams(); // Gets the ID from the URL
+  const { id } = useLocalSearchParams();
   const [viagem, setViagem] = useState< (Viagem & {rotaData?: Rota; motoristaData?: DriverUserData; presencasAlunos?: PresencaAluno[]}) | null >(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +43,7 @@ export default function ViagemDetalhesScreen() {
           const rotaSnap = await getDoc(viagemData.rota);
           rotaData = rotaSnap.exists() ? { id: rotaSnap.id, ...rotaSnap.data() } as Rota : undefined;
         } else {
-          rotaData = viagemData.rota; // If route is already the complete object
+          rotaData = viagemData.rota;
         }
 
         // Load driver data
@@ -52,35 +52,33 @@ export default function ViagemDetalhesScreen() {
           const motoristaSnap = await getDoc(viagemData.motorista);
           motoristaData = motoristaSnap.exists() ? motoristaSnap.data() as DriverUserData : undefined;
         } else {
-          motoristaData = viagemData.motorista; // If driver is already the complete object
+          motoristaData = viagemData.motorista;
         }
 
-        // --- ALTERAÇÃO AQUI: Carregar fotoUrl de cada aluno ---
+
         const alunosPresentesFormatados: PresencaAluno[] = await Promise.all(
           (viagemData.presencasAlunos || []).map(async (presenca) => {
             let fotoUrlAluno: string | undefined = undefined;
-            // Se houver uma referência ao estudante, tente buscar a fotoUrl
             if (presenca.estudanteRef instanceof DocumentReference) {
               const estudanteSnap = await getDoc(presenca.estudanteRef);
               if (estudanteSnap.exists()) {
-                fotoUrlAluno = estudanteSnap.data()?.fotoUrl; // Assumindo que o campo é 'fotoUrl'
+                fotoUrlAluno = estudanteSnap.data()?.fotoUrl;
               }
             }
             
             return {
-              ...presenca, // Mantém todos os dados existentes da presença
-              fotoUrl: fotoUrlAluno, // Adiciona a fotoUrl ao objeto de presença
-            } as PresencaAluno & { fotoUrl?: string }; // Adapta o tipo temporariamente para incluir fotoUrl
+              ...presenca, 
+              fotoUrl: fotoUrlAluno, 
+            } as PresencaAluno & { fotoUrl?: string };
           })
         );
-        // --- FIM DA ALTERAÇÃO ---
 
         setViagem({
           id: viagemSnap.id,
           ...viagemData,
           rotaData: rotaData,
           motoristaData: motoristaData,
-          presencasAlunos: alunosPresentesFormatados // Passing formatted students
+          presencasAlunos: alunosPresentesFormatados
         });
 
       } catch (err) {
@@ -122,13 +120,13 @@ export default function ViagemDetalhesScreen() {
   // Prepare data for ViagemCard (adapt interfaces)
   const motoristaParaCard = {
     nome: viagem.motoristaData?.name || 'Motorista Desconhecido',
-    foto: viagem.motoristaData?.fotoUrl || 'https://placehold.co/50x50/CCCCCC/FFFFFF?text=Avatar', // Replace with a default image
+    foto: viagem.motoristaData?.fotoUrl || 'https://placehold.co/50x50/CCCCCC/FFFFFF?text=Avatar', 
     habilitacao: viagem.motoristaData?.licenseNumber || 'N/A'
   };
 
   const alunosParaCard = viagem.presencasAlunos?.map(alunoPresenca => ({
     nome: alunoPresenca.nomeEstudante || 'Aluno Desconhecido',
-    foto: alunoPresenca.fotoUrl || 'https://placehold.co/50x50/CCCCCC/FFFFFF?text=Aluno', // ALTERAÇÃO AQUI: Usando a fotoUrl carregada
+    foto: alunoPresenca.fotoUrl || 'https://placehold.co/50x50/CCCCCC/FFFFFF?text=Aluno',
     instituicao: alunoPresenca.instituicao || 'Não informada',
     matricula: alunoPresenca.registration || 'Não informada',
     volta: alunoPresenca.volta,

@@ -6,12 +6,11 @@ import { DriverProfileForm } from '../../components/profile/DriverProfileForm';
 import { COLORS } from '../../constants/colors';
 import { useAuth } from '../../context/AuthContext';
 import { doc, getDoc, DocumentData } from "firebase/firestore"; 
-import { db } from '../../firebaseConfig'; //  Importe 'db' de firebaseConfig
-import { StudentUserData } from '../../components/profile/StudentProfileForm/types'; // Importe tipos específicos
-import { DriverUserData } from '../../components/profile/DriverProfileForm/types'; // Importe tipos específicos
+import { db } from '../../firebaseConfig'; //  
+import { StudentUserData } from '../../components/profile/StudentProfileForm/types';
+import { DriverUserData } from '../../components/profile/DriverProfileForm/types'; 
 
-// Componente de Modal Personalizado para exibir mensagens
-// Tipagem explícita para as props
+// Componente para exibir mensagens
 const CustomModal = ({ message, onClose }: { message: string | null; onClose: () => void }) => {
   if (!message) return null;
 
@@ -30,11 +29,9 @@ const CustomModal = ({ message, onClose }: { message: string | null; onClose: ()
 export default function ProfileScreen() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
-  // Use um tipo mais abrangente para userProfileData
   const [userProfileData, setUserProfileData] = useState<StudentUserData | DriverUserData | null>(null);
   const [profileLoading, setProfileLoading] = useState(true);
   const [userRole, setUserRole] = useState<string | null>(null);
-  // Inicialize modalMessage para aceitar string ou null
   const [modalMessage, setModalMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -46,21 +43,19 @@ export default function ProfileScreen() {
           const userDocSnap = await getDoc(userDocRef);
 
           if (userDocSnap.exists()) {
-            const data = userDocSnap.data() as StudentUserData | DriverUserData; // Cast para o tipo esperado
+            const data = userDocSnap.data() as StudentUserData | DriverUserData;
             setUserProfileData(data);
-            setUserRole(data.role as string); // Assume que 'role' é uma string
+            setUserRole(data.role as string);
           } else {
             console.warn("Documento de perfil do usuário não encontrado no Firestore para UID:", user.uid);
             setUserProfileData(null);
             setUserRole(null);
-            // Agora setModalMessage aceita string
             setModalMessage("Seu perfil não foi encontrado. Entre em contato com o suporte.");
           }
         } catch (error) {
           console.error("Erro ao buscar o perfil do usuário:", error);
           setUserProfileData(null);
           setUserRole(null);
-          // Agora setModalMessage aceita string
           setModalMessage("Ocorreu um erro ao carregar seu perfil.");
         } finally {
           setProfileLoading(false);
@@ -109,13 +104,11 @@ export default function ProfileScreen() {
     );
   }
 
-  // Garante que userProfileData seja um objeto antes de espalhar
   const initialFormData = userProfileData ? {
     ...userProfileData,
     email: userProfileData.email || user.email || '',
-    // 'nome' para Driver, 'name' para Student. Use um fallback.
     nome: (userRole === "driver" ? (userProfileData as DriverUserData).name : (userProfileData as StudentUserData).name) || user.displayName || '',
-    senha: '', // Senha nunca deve ser exibida ou enviada, mantenha vazia
+    senha: '',
     fotoUrl: userProfileData.fotoUrl || "https://placehold.co/100x100/CCCCCC/FFFFFF?text=Avatar" // Placeholder para avatar
   } : null;
 
@@ -185,7 +178,7 @@ const modalStyles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 1000, // Garante que o modal fique por cima
+    zIndex: 1000,
   },
   container: {
     backgroundColor: COLORS.white,

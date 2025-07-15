@@ -210,7 +210,6 @@ export default function ViagemScreen() {
 
   return (
     <View style={styles.container}>
-      {/* ADIÇÃO AQUI: Componente Stack.Screen para remover o cabeçalho */}
       <Stack.Screen options={{ headerShown: false }} /> 
 
       <CalendarViagem

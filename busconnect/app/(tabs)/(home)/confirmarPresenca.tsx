@@ -101,7 +101,7 @@ export default function ConfirmarPresencaScreen() {
       const nomeEstudante = estudanteData.name || user.displayName || user.email || 'Estudante Desconhecido';
       const matriculaEstudante = estudanteData.registration || 'Não informada';
       const instituicaoEstudante = estudanteData.institution || 'Não informada';
-      const fotoUrlEstudante = estudanteData.fotoUrl || 'https://placehold.co/50x50/CCCCCC/FFFFFF?text=Aluno'; // ADIÇÃO AQUI: Buscar fotoUrl
+      const fotoUrlEstudante = estudanteData.fotoUrl || 'https://placehold.co/50x50/CCCCCC/FFFFFF?text=Aluno';
 
       const novaPresenca: PresencaAluno = {
         estudanteRef: estudanteRef,
@@ -112,7 +112,7 @@ export default function ConfirmarPresencaScreen() {
         timestampConfirmacao: new Date(),
         registration: matriculaEstudante,
         instituicao: instituicaoEstudante,
-        fotoUrl: fotoUrlEstudante, // ADIÇÃO AQUI: Passar fotoUrl para PresencaAluno
+        fotoUrl: fotoUrlEstudante,
       };
 
       if (selectedViagem.minhaPresenca) {
