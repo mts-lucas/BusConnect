@@ -1,18 +1,19 @@
 import { Alert, StyleSheet } from 'react-native';
-import { COLORS } from '../../../constants/colors';
+import { COLORS } from '../../../../constants/colors';
 import { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, FlatList } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import CalendarViagem from '../../../components/Viagem/CalendarViagem';
-import { BotaoViagem } from '../../../components/Viagem/BotaoViagem';
-import { ModalConfirmacao } from '../../../components/Viagem/ModalConfirmacao';
-import { ModalEdicao } from '../../../components/Viagem/ModalEdicao';
-import { useRouter } from 'expo-router';
-import { Viagem, Rota } from '../../../components/Viagem/types';
+import CalendarViagem from '../../../../components/Viagem/CalendarViagem';
+import { BotaoViagem } from '../../../../components/Viagem/BotaoViagem';
+import { ModalConfirmacao } from '../../../../components/Viagem/ModalConfirmacao';
+import { ModalEdicao } from '../../../../components/Viagem/ModalEdicao';
+// Importe Stack aqui
+import { useRouter, Stack } from 'expo-router'; 
+import { Viagem, Rota } from '../../../../components/Viagem/types';
 import { collection, addDoc, getDocs, doc, deleteDoc, updateDoc, query, where, getDoc } from 'firebase/firestore';
-import { db } from '../../../firebaseConfig';
-import { useAuth } from '../../../context/AuthContext';
-import { DriverUserData } from '../../../components/profile/DriverProfileForm/types';
+import { db } from '../../../../firebaseConfig';
+import { useAuth } from '../../../../context/AuthContext';
+import { DriverUserData } from '../../../../components/profile/DriverProfileForm/types';
 import { DocumentReference } from "firebase/firestore";
 
 export default function ViagemScreen() {
@@ -209,6 +210,8 @@ export default function ViagemScreen() {
 
   return (
     <View style={styles.container}>
+      <Stack.Screen options={{ headerShown: false }} /> 
+
       <CalendarViagem
         onDayPress={handleDayPress}
         markedDates={{
@@ -300,7 +303,7 @@ export default function ViagemScreen() {
               <TouchableOpacity
                 style={styles.itemLista}
                 activeOpacity={0.7}
-                onPress={() => router.push("/visualizarViagem")}
+                onPress={() => router.push(`/viagem/${item.id}`)}
                 delayPressIn={100}
               >
                 <View style={{ flex: 1 }}>
@@ -372,7 +375,7 @@ export default function ViagemScreen() {
   );
 }
 
-// Estilos
+// Estilos (sem alterações, mantidos para completude)
 export const textStyles = StyleSheet.create({
   normal: {
     color: COLORS.white,

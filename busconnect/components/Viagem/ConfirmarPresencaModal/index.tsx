@@ -4,6 +4,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { styles } from './styles';
 import { ConfirmarPresencaModalProps } from './types';
 import Checkbox from 'expo-checkbox';
+import { COLORS } from '../../../constants/colors';
 
 export const ConfirmarPresencaModal: React.FC<ConfirmarPresencaModalProps> = ({
   visible,
@@ -19,12 +20,14 @@ export const ConfirmarPresencaModal: React.FC<ConfirmarPresencaModalProps> = ({
   const [voltaChecked, setVoltaChecked] = useState(false);
 
   useEffect(() => {
-    if (viagem?.presenca) {
-      setIdaChecked(viagem.presenca.ida);
-      setVoltaChecked(viagem.presenca.volta);
+    if (viagem?.minhaPresenca) {
+      setIdaChecked(viagem.minhaPresenca.ida);
+      setVoltaChecked(viagem.minhaPresenca.volta);
+      setHorarioSaida(viagem.minhaPresenca.horarioSaida || '');
     } else {
       setIdaChecked(false);
       setVoltaChecked(false);
+      setHorarioSaida('');
     }
   }, [viagem]);
 
@@ -42,8 +45,8 @@ export const ConfirmarPresencaModal: React.FC<ConfirmarPresencaModalProps> = ({
   };
 
   const isButtonDisabled = () => {
-    if (!idaChecked && !voltaChecked) return true; 
-    if (voltaChecked && !horarioSaida) return true; 
+    if (!idaChecked && !voltaChecked) return true;
+    if (voltaChecked && !horarioSaida) return true;
     return false;
   };
 
@@ -57,13 +60,13 @@ export const ConfirmarPresencaModal: React.FC<ConfirmarPresencaModalProps> = ({
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
           <Text style={styles.modalTitulo}>
-            {viagem?.presenca ? 'Alterar Presença' : 'Confirmar Presença'}
+            {viagem?.minhaPresenca ? 'Alterar Presença' : 'Confirmar Presença'}
           </Text>
           
           {viagem && (
             <>
               <Text style={styles.modalTexto}>
-                {viagem.rota.origem} - {viagem.rota.destino} ({viagem.turno})
+                {viagem.rotaData?.origem} - {viagem.rotaData?.destino} ({viagem.horario})
               </Text>
 
               <View style={styles.checkboxContainer}>
@@ -76,7 +79,7 @@ export const ConfirmarPresencaModal: React.FC<ConfirmarPresencaModalProps> = ({
                         setHorarioSaida('');
                       }
                     }}
-                    color={idaChecked ? '#4CAF50' : undefined} 
+                    color={idaChecked ? COLORS.greenDark : undefined}
                   />
                   <Text style={styles.checkboxLabel}>Ida</Text>
                 </View>
@@ -90,33 +93,59 @@ export const ConfirmarPresencaModal: React.FC<ConfirmarPresencaModalProps> = ({
                         setHorarioSaida('');
                       }
                     }}
-                    color={voltaChecked ? '#4CAF50' : undefined} 
+                    color={voltaChecked ? COLORS.greenDark : undefined}
                   />
                   <Text style={styles.checkboxLabel}>Volta</Text>
                 </View>
               </View>
 
+              {/* Campo de Horário de Saída, visível apenas se "Volta" estiver marcada */}
               {voltaChecked && (
                 <>
                   <Text style={styles.label}>Horário de Saída:</Text>
-                  <TouchableWithoutFeedback onPress={showTimePickerModal}>
-                    <View>
-                      <TextInput
-                        style={styles.input}
-                        placeholder="HH:MM"
-                        value={horarioSaida}
-                        onChangeText={setHorarioSaida}
-                        editable={false}
-                        onTouchStart={showTimePickerModal}
-                      />
-                    </View>
-                  </TouchableWithoutFeedback>
+                  
+                  {/* Lógica condicional para Web vs. Mobile */}
+                  {Platform.OS === 'web' ? (
+                    // Para Web: TextInput editável
+                    <TextInput
+                      style={styles.input}
+                      placeholder="HH:MM"
+                      placeholderTextColor={COLORS.grayLight}
+                      value={horarioSaida}
+                      onChangeText={(text) => {
+                        // Opcional: Adicionar validação de formato HH:MM aqui
+                        // Ex: Regex para garantir que o formato é válido
+                        const formattedText = text.replace(/[^0-9:]/g, ''); // Permite apenas números e ':'
+                        if (formattedText.length <= 5) { // Para não permitir mais que HH:MM
+                          setHorarioSaida(formattedText);
+                        }
+                      }}
+                      keyboardType="numbers-and-punctuation" // Sugere teclado numérico para mobile, mas pode não ter efeito em web
+                      maxLength={5} // HH:MM (5 caracteres)
+                    />
+                  ) : (
+                    // Para Mobile (iOS/Android): TextInput que abre o DateTimePicker
+                    <TouchableWithoutFeedback onPress={showTimePickerModal}>
+                      <View>
+                        <TextInput
+                          style={styles.input}
+                          placeholder="HH:MM"
+                          placeholderTextColor={COLORS.grayLight}
+                          value={horarioSaida}
+                          onChangeText={setHorarioSaida} // Embora seja 'editable=false', é bom ter
+                          editable={false} // Impede edição direta, força uso do picker
+                          onTouchStart={showTimePickerModal} // Abre o picker ao tocar
+                        />
+                      </View>
+                    </TouchableWithoutFeedback>
+                  )}
                 </>
               )}
 
-              {showTimePicker && (
+              {/* Picker de Horário (para Android/iOS), visível apenas em mobile e quando showTimePicker é true */}
+              {Platform.OS !== 'web' && showTimePicker && (
                 <DateTimePicker
-                  value={new Date()}
+                  value={new Date()} // Pode inicializar com o horário atual ou com horarioSaida se for alterar
                   mode="time"
                   is24Hour={true}
                   display={Platform.OS === 'ios' ? 'spinner' : 'default'}
@@ -128,7 +157,7 @@ export const ConfirmarPresencaModal: React.FC<ConfirmarPresencaModalProps> = ({
                 <TouchableOpacity
                   style={[styles.botao, styles.botaoCancelar]}
                   onPress={() => {
-                    if (viagem.presenca) {
+                    if (viagem.minhaPresenca) {
                       onCancelPresenca();
                     } else {
                       onClose();
@@ -136,7 +165,7 @@ export const ConfirmarPresencaModal: React.FC<ConfirmarPresencaModalProps> = ({
                   }}
                 >
                   <Text style={styles.textoBotao}>
-                    {viagem.presenca ? 'Cancelar Presença' : 'Voltar'}
+                    {viagem.minhaPresenca ? 'Cancelar Presença' : 'Voltar'}
                   </Text>
                 </TouchableOpacity>
                 
@@ -150,7 +179,7 @@ export const ConfirmarPresencaModal: React.FC<ConfirmarPresencaModalProps> = ({
                   disabled={isButtonDisabled()}
                 >
                   <Text style={styles.textoBotao}>
-                    {viagem.presenca ? 'Atualizar' : 'Confirmar'}
+                    {viagem.minhaPresenca ? 'Atualizar' : 'Confirmar'}
                   </Text>
                 </TouchableOpacity>
               </View>
