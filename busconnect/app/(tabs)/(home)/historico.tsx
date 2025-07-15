@@ -36,15 +36,13 @@ export default function HistoricoViagensScreen() {
         for (const docFirebase of querySnapshot.docs) {
           const data = docFirebase.data() as Viagem;
 
-          // Verifica se o usuário atual é um estudante que confirmou presença
           const minhaPresenca = data.presencasAlunos?.find(
             p => (p.estudanteRef as DocumentReference).id === user.uid
           );
 
-          // Verifica se o usuário atual é o motorista da viagem
           const isMotoristaDaViagem = data.motorista instanceof DocumentReference && data.motorista.id === user.uid;
 
-          if (minhaPresenca || isMotoristaDaViagem) { // Se o usuário participou OU dirigiu esta viagem
+          if (minhaPresenca || isMotoristaDaViagem) {
             let rotaData: Rota | undefined;
             if (data.rota instanceof DocumentReference) {
               const rotaSnap = await getDoc(data.rota);
@@ -66,7 +64,7 @@ export default function HistoricoViagensScreen() {
               ...data,
               rotaData,
               motoristaData,
-              minhaPresenca // Adiciona os dados específicos da presença do usuário (se for estudante)
+              minhaPresenca
             });
           }
         }
@@ -81,7 +79,7 @@ export default function HistoricoViagensScreen() {
     };
 
     carregarHistoricoViagens();
-  }, [user]); // Recarrega se o usuário mudar
+  }, [user]); 
 
   if (loading) {
     return (
@@ -102,7 +100,6 @@ export default function HistoricoViagensScreen() {
 
   return (
     <View style={historicoStyles.container}>
-      {/* Remove o cabeçalho padrão da tela de histórico */}
       <Stack.Screen options={{ headerShown: false }} /> 
 
       <Text style={historicoStyles.titulo}>Meu Histórico de Viagens</Text>
@@ -116,7 +113,7 @@ export default function HistoricoViagensScreen() {
           renderItem={({ item }) => (
             <TouchableOpacity 
               style={historicoStyles.itemLista}
-              onPress={() => router.push(`/viagem/${item.id}`)} // Permite navegar para os detalhes da viagem
+              onPress={() => router.push(`/viagem/${item.id}`)}
             >
               <View style={historicoStyles.itemContent}>
                 <Text style={historicoStyles.itemTitulo}>
@@ -126,10 +123,10 @@ export default function HistoricoViagensScreen() {
                 <Text style={historicoStyles.itemTexto}>Horário: {item.horario}</Text>
                 <Text style={historicoStyles.itemTexto}>
                   Motorista: {item.motoristaData?.name || 'Desconhecido'}
-                  {item.motoristaData?.name === user?.displayName && ' (Você)'} {/* Indica se o motorista é o usuário logado */}
+                  {item.motoristaData?.name === user?.displayName && ' (Você)'}
                 </Text>
                 
-                {item.minhaPresenca ? ( // Se o usuário é estudante e confirmou presença
+                {item.minhaPresenca ? (
                   <View style={historicoStyles.presencaContainer}>
                     <Text style={historicoStyles.presencaTexto}>
                       Sua presença: {item.minhaPresenca.ida && item.minhaPresenca.volta ? 'Ida e Volta' : item.minhaPresenca.ida ? 'Somente Ida' : item.minhaPresenca.volta ? 'Somente Volta' : 'Não especificada'}
@@ -140,10 +137,10 @@ export default function HistoricoViagensScreen() {
                       </Text>
                     )}
                   </View>
-                ) : ( // Se o usuário é o motorista e não é estudante nessa viagem
+                ) : (
                   <View style={historicoStyles.presencaContainer}>
                     <Text style={historicoStyles.presencaTexto}>
-                      Você é o motorista desta viagem.
+                      Você foi o motorista desta viagem.
                     </Text>
                   </View>
                 )}
