@@ -88,7 +88,7 @@ export default function HomeScreen() {
       <HomeCard
         title="Viagem"
         description="Calendário de viagens"
-        onPress={() => router.push('/(tabs)/(home)/viagem')}
+        onPress={() => router.push('/(tabs)/(home)/viagem/viagem')}
         iconName="bus"
       />
     </>

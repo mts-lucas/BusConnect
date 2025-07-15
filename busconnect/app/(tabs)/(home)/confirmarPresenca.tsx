@@ -10,8 +10,7 @@ import { collection, getDocs, query, where, doc, updateDoc, arrayUnion, arrayRem
 import { db } from '../../../firebaseConfig';
 import { useAuth } from '../../../context/AuthContext';
 
-// Importe o Stack do expo-router
-import { Stack } from 'expo-router'; // <--- ADICIONE ESTA LINHA
+import { Stack } from 'expo-router';
 
 export default function ConfirmarPresencaScreen() {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
@@ -90,13 +89,30 @@ export default function ConfirmarPresencaScreen() {
       const viagemRef = doc(db, 'viagens', selectedViagem.id);
       const estudanteRef = doc(db, 'users', user.uid);
 
+      // 1. Buscar os dados completos do perfil do usuário logado (estudante)
+      const estudanteSnap = await getDoc(estudanteRef);
+      if (!estudanteSnap.exists()) {
+        Alert.alert("Erro", "Perfil do estudante não encontrado.");
+        setLoading(false);
+        return;
+      }
+      const estudanteData = estudanteSnap.data();
+
+      const nomeEstudante = estudanteData.name || user.displayName || user.email || 'Estudante Desconhecido';
+      const matriculaEstudante = estudanteData.registration || 'Não informada';
+      const instituicaoEstudante = estudanteData.institution || 'Não informada';
+      const fotoUrlEstudante = estudanteData.fotoUrl || 'https://placehold.co/50x50/CCCCCC/FFFFFF?text=Aluno'; // ADIÇÃO AQUI: Buscar fotoUrl
+
       const novaPresenca: PresencaAluno = {
         estudanteRef: estudanteRef,
-        nomeEstudante: user.displayName || user.email || 'Estudante Desconhecido',
+        nomeEstudante: nomeEstudante,
         ida: presencaStatus.ida,
         volta: presencaStatus.volta,
         horarioSaida: presencaStatus.volta ? horarioSaida : null,
         timestampConfirmacao: new Date(),
+        registration: matriculaEstudante,
+        instituicao: instituicaoEstudante,
+        fotoUrl: fotoUrlEstudante, // ADIÇÃO AQUI: Passar fotoUrl para PresencaAluno
       };
 
       if (selectedViagem.minhaPresenca) {
@@ -150,7 +166,6 @@ export default function ConfirmarPresencaScreen() {
 
   return (
     <View style={styles.container}>
-      {/* ADICIONE ESTE COMPONENTE PARA REMOVER O CABEÇALHO */}
       <Stack.Screen options={{ headerShown: false }} /> 
 
       <CalendarViagem
